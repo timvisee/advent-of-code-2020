@@ -1,16 +1,20 @@
-use itertools::Itertools;
-
 fn main() {
-    println!(
-        "{}",
-        std::fs::read_to_string("./input.txt")
-            .unwrap()
-            .lines()
-            .map(|i| i.parse::<usize>().unwrap())
-            .combinations(3)
-            .filter(|i| i.iter().sum::<usize>() == 2020)
-            .next()
-            .map(|i| i.iter().product::<usize>())
-            .unwrap()
-    );
+    let mut items: Vec<usize> = std::fs::read_to_string("./input.txt")
+        .unwrap()
+        .lines()
+        .map(|i| i.parse().unwrap())
+        .collect();
+
+    items.sort_unstable();
+
+    for a in &items {
+        for b in &items {
+            for c in &items {
+                if a + b + c == 2020 {
+                    println!("{}", a * b * c);
+                    return;
+                }
+            }
+        }
+    }
 }
