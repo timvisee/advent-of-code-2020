@@ -5,4 +5,5 @@ authors = ["timvisee <tim@visee.me>"]
 edition = "2018"
 
 [dependencies]
-regex = "1.4"
+atoi = "0.4"
+nom = "6.0"
