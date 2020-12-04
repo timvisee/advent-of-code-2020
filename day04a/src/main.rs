@@ -7,21 +7,11 @@ fn main() {
         "{}",
         std::fs::read_to_string("./input.txt")
             .unwrap()
-            .lines()
-            .scan(Vec::new(), |ref mut buf, line| {
-                Some(if !line.is_empty() {
-                    buf.push(line);
-                    None
-                } else {
-                    let map = buf
-                        .into_iter()
-                        .flat_map(|l| l.split(' ').map(|f| f.split(':').next().unwrap()))
-                        .collect::<HashSet<_>>();
-                    buf.clear();
-                    Some(map)
-                })
-            })
-            .filter_map(|f| f)
+            .split("\n\n")
+            .map(|fields| fields
+                .split_ascii_whitespace()
+                .map(|field| field.split(':').next().unwrap())
+                .collect::<HashSet<_>>())
             .filter(|passport| REQ_FIELDS.iter().all(|item| passport.contains(item)))
             .count(),
     );
