@@ -1,0 +1,7 @@
+[package]
+name = "day04a"
+version = "0.1.0"
+authors = ["timvisee <tim@visee.me>"]
+edition = "2018"
+
+[dependencies]
