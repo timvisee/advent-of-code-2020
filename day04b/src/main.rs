@@ -1,77 +1,53 @@
 #![feature(str_split_once)]
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+
+const REQ_FIELDS: [&'static str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+const EYE_COLORS: [&'static str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 
 fn main() {
-    let data = std::fs::read_to_string("./input.txt").unwrap();
-
-    let required = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
-
-    let valid = data
-        .lines()
-        .fold(
-            (Vec::new(), Vec::with_capacity(8)),
-            |(mut passports, mut acc), line| {
-                if line.is_empty() {
-                    passports.push(acc);
-                    acc = Vec::with_capacity(8);
+    println!(
+        "{}",
+        std::fs::read_to_string("./input.txt")
+            .unwrap()
+            .lines()
+            .scan(Vec::new(), |ref mut buf, line| {
+                Some(if !line.is_empty() {
+                    buf.push(line);
+                    None
                 } else {
-                    acc.push(line);
-                }
-
-                (passports, acc)
-            },
-        )
-        .0
-        .into_iter()
-        .map(|passport| {
-            passport
-                .into_iter()
-                .map(|l| {
-                    l.split(' ')
-                        .map(|i| i.split_once(':').unwrap())
-                        .collect::<HashMap<&str, &str>>()
+                    let map = buf
+                        .into_iter()
+                        .flat_map(|l| l.split(' ').map(|f| f.split_once(':').unwrap()))
+                        .collect::<HashMap<_, _>>();
+                    buf.clear();
+                    Some(map)
                 })
-                .flatten()
-                .collect::<HashMap<&str, &str>>()
-        })
-        .filter(|passport| passport.iter().all(|(f, v)| validate_items(f, v)))
-        .filter(|passport| required.iter().all(|item| passport.contains_key(item)))
-        .count();
-
-    println!("{}", valid);
+            })
+            .filter_map(|f| f)
+            .filter(|passport| REQ_FIELDS.iter().all(|item| passport.contains_key(item)))
+            .filter(|passport| passport.iter().all(|(f, v)| validate_field(f, v)))
+            .count(),
+    );
 }
 
-fn validate_items(field: &str, value: &str) -> bool {
+/// Validate a password field value.
+fn validate_field(field: &str, value: &str) -> bool {
     match field {
-        "byr" => {
-            let value: usize = value.parse().unwrap();
-            value >= 1920 && value <= 2002
-        }
-        "iyr" => {
-            let value: usize = value.parse().unwrap();
-            value >= 2010 && value <= 2020
-        }
-        "eyr" => {
-            let value: usize = value.parse().unwrap();
-            value >= 2020 && value <= 2030
-        }
+        "byr" => value.parse::<usize>().unwrap().wrapping_sub(1920) <= 82,
+        "iyr" => value.parse::<usize>().unwrap().wrapping_sub(2010) <= 10,
+        "eyr" => value.parse::<usize>().unwrap().wrapping_sub(2020) <= 10,
         "hgt" => {
             if value.ends_with("cm") && value.len() == 5 {
-                let len: usize = value[0..3].parse().unwrap();
-                len >= 150 && len <= 193
+                value[0..3].parse::<usize>().unwrap().wrapping_sub(150) <= 43
             } else if value.ends_with("in") && value.len() == 4 {
-                let len: usize = value[0..2].parse().unwrap();
-                len >= 59 && len <= 76
+                value[0..2].parse::<usize>().unwrap().wrapping_sub(59) <= 27
             } else {
                 false
             }
         }
         "hcl" => value.len() == 7,
-        "ecl" => {
-            let one_of = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
-            one_of.iter().any(|v| &value == v)
-        }
+        "ecl" => EYE_COLORS.iter().any(|v| v == &value),
         "pid" => value.len() == 9,
         "cid" => true,
         _ => panic!("unknown field type"),

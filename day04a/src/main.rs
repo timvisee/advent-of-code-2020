@@ -1,40 +1,28 @@
 use std::collections::HashSet;
 
+const REQ_FIELDS: [&'static str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+
 fn main() {
-    let data = std::fs::read_to_string("./input.txt").unwrap();
-
-    let required = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
-
-    let valid = data
-        .lines()
-        .fold(
-            (Vec::new(), Vec::with_capacity(8)),
-            |(mut passports, mut acc), line| {
-                if line.is_empty() {
-                    passports.push(acc);
-                    acc = Vec::with_capacity(8);
+    println!(
+        "{}",
+        std::fs::read_to_string("./input.txt")
+            .unwrap()
+            .lines()
+            .scan(Vec::new(), |ref mut buf, line| {
+                Some(if !line.is_empty() {
+                    buf.push(line);
+                    None
                 } else {
-                    acc.push(line);
-                }
-
-                (passports, acc)
-            },
-        )
-        .0
-        .into_iter()
-        .map(|passport| {
-            passport
-                .into_iter()
-                .map(|l| {
-                    l.split(' ')
-                        .map(|i| i.split(':').next().unwrap())
-                        .collect::<HashSet<_>>()
+                    let map = buf
+                        .into_iter()
+                        .flat_map(|l| l.split(' ').map(|f| f.split(':').next().unwrap()))
+                        .collect::<HashSet<_>>();
+                    buf.clear();
+                    Some(map)
                 })
-                .flatten()
-                .collect::<HashSet<_>>()
-        })
-        .filter(|passport| required.iter().all(|item| passport.contains(item)))
-        .count();
-
-    println!("{}", valid);
+            })
+            .filter_map(|f| f)
+            .filter(|passport| REQ_FIELDS.iter().all(|item| passport.contains(item)))
+            .count(),
+    );
 }
