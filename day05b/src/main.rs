@@ -3,11 +3,9 @@ fn main() {
         .unwrap()
         .chunks(11)
         .map(|b| {
-            b[..10].iter().fold(0, |mut id, b| {
-                id <<= 1;
-                id |= (!b & 0b100) as usize >> 2;
-                id
-            })
+            b[..10]
+                .iter()
+                .fold(0, |id, b| (id << 1) | (!b & 4) as usize >> 2)
         })
         .collect::<Vec<_>>();
     ids.sort_unstable();
