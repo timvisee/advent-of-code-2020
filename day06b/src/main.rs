@@ -6,15 +6,9 @@ fn main() {
             .split("\n\n")
             .map(|g| g
                 .lines()
-                .map(|l| l.bytes().fold([0; 26], |mut map, b| {
-                    map[(b - b'a') as usize] += 1;
-                    map
-                }))
-                .fold((0, [0; 26]), |(count, mut map), g| {
-                    (0..26).for_each(|i| map[i] += g[i]);
-                    (count + 1, map)
-                }))
-            .map(|(count, g)| g.iter().filter(|v| v == &&count).count())
-            .sum::<usize>()
+                .map(|l| l.bytes().fold(0u32, |map, b| map | 1 << b - b'a'))
+                .fold(std::u32::MAX, |map, g| map & g)
+                .count_ones())
+            .sum::<u32>()
     );
 }
