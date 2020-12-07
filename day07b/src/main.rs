@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 lazy_static::lazy_static! {
     static ref RE_RULE: Regex = Regex::new(r#"^([a-z ]+) bags contain (.*)$"#).unwrap();
-    static ref RE_CONT: Regex = Regex::new(r#"(\d) ([a-z ]+) bags?"#).unwrap();
+    static ref RE_CONT: Regex = Regex::new(r#"(\d) ([a-z ]+) b"#).unwrap();
 }
 
 fn main() {
@@ -14,7 +14,7 @@ fn main() {
 
 /// Parse bag ruleset.
 #[inline(always)]
-fn parse_bag<'a>(rule: &'a str) -> (&'a str, HashMap<&str, usize>) {
+fn parse_bag<'a>(rule: &'a str) -> (&'a str, Vec<(&str, usize)>) {
     let captures = RE_RULE.captures(rule).unwrap();
     (
         captures.get(1).unwrap().as_str(),
@@ -26,7 +26,7 @@ fn parse_bag<'a>(rule: &'a str) -> (&'a str, HashMap<&str, usize>) {
 }
 
 /// Count bags in bags.
-fn bags(color: &str, rules: &HashMap<&str, HashMap<&str, usize>>) -> usize {
+fn bags(color: &str, rules: &HashMap<&str, Vec<(&str, usize)>>) -> usize {
     1 + rules[color]
         .iter()
         .map(|(color, count)| bags(color, rules) * count)
