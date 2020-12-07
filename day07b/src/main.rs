@@ -7,35 +7,28 @@ lazy_static::lazy_static! {
 }
 
 fn main() {
-    let list: HashMap<_, _> = std::fs::read_to_string("./input.txt")
-        .unwrap()
-        .lines()
-        .filter(|rule| !rule.ends_with("no other bags."))
-        .map(|rule| parse_bag(rule))
-        .collect();
-
-    println!("{}", bags("shiny gold", &list));
+    let data = std::fs::read_to_string("./input.txt").unwrap();
+    let rules: HashMap<_, _> = data.lines().map(parse_bag).collect();
+    println!("{}", bags("shiny gold", &rules) - 1);
 }
 
-fn bags(color: &str, list: &HashMap<String, HashMap<String, usize>>) -> usize {
-    if let Some(contents) = list.get(color) {
-        contents
-            .iter()
-            .map(|(color, count)| (bags(color, &list) + 1) * count)
-            .sum()
-    } else {
-        0
-    }
-}
-
-fn parse_bag(rule: &str) -> (String, HashMap<String, usize>) {
+/// Parse bag ruleset.
+#[inline(always)]
+fn parse_bag<'a>(rule: &'a str) -> (&'a str, HashMap<&str, usize>) {
     let captures = RE_RULE.captures(rule).unwrap();
-    (captures[1].into(), parse_contents(captures[2].into()))
+    (
+        captures.get(1).unwrap().as_str(),
+        RE_CONT
+            .captures_iter(captures.get(2).unwrap().as_str())
+            .map(|cond| (cond.get(2).unwrap().as_str(), cond[1].parse().unwrap()))
+            .collect(),
+    )
 }
 
-fn parse_contents(contents: &str) -> HashMap<String, usize> {
-    RE_CONT
-        .captures_iter(contents)
-        .map(|cond| (cond[2].into(), cond[1].parse().unwrap()))
-        .collect()
+/// Count bags in bags.
+fn bags(color: &str, rules: &HashMap<&str, HashMap<&str, usize>>) -> usize {
+    1 + rules[color]
+        .iter()
+        .map(|(color, count)| bags(color, rules) * count)
+        .sum::<usize>()
 }

@@ -1,48 +1,38 @@
 use regex::Regex;
-use std::collections::HashMap;
 
 lazy_static::lazy_static! {
     static ref RE_RULE: Regex = Regex::new(r#"^([a-z ]+) bags contain (.*)$"#).unwrap();
-    static ref RE_CONT: Regex = Regex::new(r#"(\d) ([a-z ]+) bags?"#).unwrap();
+    static ref RE_CONT: Regex = Regex::new(r#"\d ([a-z ]+) b"#).unwrap();
 }
 
 fn main() {
-    let list: Vec<_> = std::fs::read_to_string("./input.txt")
-        .unwrap()
-        .lines()
-        .filter(|rule| !rule.ends_with("no other bags."))
-        .map(|rule| parse_bag(rule))
-        .collect();
+    let data = std::fs::read_to_string("./input.txt").unwrap();
+    let rules: Vec<_> = data.lines().map(parse_bag).collect();
 
-    let (mut targets, mut checked) = (vec!["shiny gold"], vec![]);
+    let (mut bags, mut cursor) = (vec!["shiny gold"], 0);
 
-    while !targets.is_empty() {
-        let target = targets.remove(0);
-        let extra = list
+    while let Some(target) = bags.get(cursor) {
+        let extra = rules
             .iter()
-            .filter(|(_, cont)| cont.contains_key(target))
-            .map(|(color, _)| color.as_str())
+            .filter(|(color, cont)| cont.contains(target) && !bags.contains(color))
+            .map(|(color, _)| *color)
             .collect::<Vec<_>>();
-
-        for e in extra {
-            if !checked.contains(&e) {
-                targets.push(&e);
-                checked.push(&e);
-            }
-        }
+        bags.extend_from_slice(&extra);
+        cursor += 1;
     }
 
-    println!("{}", checked.len());
+    println!("{}", bags.len() - 1);
 }
 
-fn parse_bag(rule: &str) -> (String, HashMap<String, usize>) {
+/// Parse bag ruleset.
+#[inline(always)]
+fn parse_bag<'a>(rule: &'a str) -> (&'a str, Vec<&str>) {
     let captures = RE_RULE.captures(rule).unwrap();
-    (captures[1].into(), parse_contents(captures[2].into()))
-}
-
-fn parse_contents(contents: &str) -> HashMap<String, usize> {
-    RE_CONT
-        .captures_iter(contents)
-        .map(|cond| (cond[2].into(), cond[1].parse().unwrap()))
-        .collect()
+    (
+        captures.get(1).unwrap().as_str(),
+        RE_CONT
+            .captures_iter(captures.get(2).unwrap().as_str())
+            .map(|cond| cond.get(1).unwrap().as_str())
+            .collect(),
+    )
 }
