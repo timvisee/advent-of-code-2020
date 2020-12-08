@@ -1,10 +1,6 @@
-use std::thread;
+use rayon::prelude::*;
 
 fn main() {
-    runner::jobs()
-        .into_iter()
-        .map(|j| thread::spawn(j))
-        .collect::<Vec<_>>()
-        .into_iter()
-        .for_each(|t| t.join().unwrap());
+    let jobs = runner::jobs();
+    (0..jobs.len()).into_par_iter().for_each(|i| jobs[i]());
 }
