@@ -5,3 +5,4 @@ authors = ["timvisee <tim@visee.me>"]
 edition = "2018"
 
 [dependencies]
+atoi = "0.4"

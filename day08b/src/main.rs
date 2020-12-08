@@ -1,36 +1,35 @@
 fn main() {
-    let mut program: Vec<(&str, isize)> = include_str!("../input.txt")
-        .lines()
-        .map(|ins| {
-            let mut sp = ins.splitn(2, ' ');
-            (sp.next().unwrap(), sp.next().unwrap().parse().unwrap())
-        })
+    let mut program: Vec<(&[u8], i32)> = include_bytes!("../input.txt")
+        .split(|b| b == &b'\n')
+        .map(|ins| (&ins[0..3], atoi::atoi(&ins[4..]).unwrap()))
         .collect();
 
-    let swp_jmp_nop = |ins: &mut _| match ins {
-        ("nop", _) => ins.0 = "jmp",
-        ("jmp", _) => ins.0 = "nop",
+    let swp_jmp_nop = |ins: &mut (&[u8], _)| match ins {
+        (b"nop", _) => ins.0 = b"jmp",
+        (b"jmp", _) => ins.0 = b"nop",
         _ => {}
     };
     for pc in run(&program).0 {
-        swp_jmp_nop(&mut program[pc]);
-        if let (_, Some(acc)) = run(&program) {
-            println!("{}", acc);
-            break;
+        if program[pc].0 == b"jmp" {
+            swp_jmp_nop(&mut program[pc]);
+            if let (_, Some(acc)) = run(&program) {
+                println!("{}", acc);
+                break;
+            }
+            swp_jmp_nop(&mut program[pc]);
         }
-        swp_jmp_nop(&mut program[pc]);
     }
 }
 
 /// Run program. Return `Some(acc)` on success, `None` on infinite loop.
 #[inline(always)]
-fn run(program: &[(&str, isize)]) -> (Vec<usize>, Option<isize>) {
+fn run(program: &[(&[u8], i32)]) -> (Vec<usize>, Option<i32>) {
     let (mut visited, mut pc, mut acc) = (Vec::with_capacity(64), 0, 0);
     while !visited.contains(&pc) {
         visited.push(pc);
         match program.get(pc) {
-            Some(("acc", val)) => acc += val,
-            Some(("jmp", val)) => pc += *val as usize - 1,
+            Some((b"acc", val)) => acc += val,
+            Some((b"jmp", val)) => pc += *val as usize - 1,
             None => return (visited, Some(acc)),
             _ => {}
         }
