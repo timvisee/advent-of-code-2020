@@ -1,13 +1,10 @@
-#[macro_use]
-extern crate nom;
-
 use atoi::atoi;
-use nom::character::complete::alpha1;
+use nom::{character::complete::alpha1, *};
 
-fn main() {
+pub fn main() {
     println!(
         "{}",
-        entries(&std::fs::read("./input.txt").unwrap())
+        entries(include_bytes!("../input.txt"))
             .unwrap()
             .1
             .into_iter()

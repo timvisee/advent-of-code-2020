@@ -1,8 +1,7 @@
-fn main() {
+pub fn main() {
     println!(
         "{}",
-        std::fs::read_to_string("./input.txt")
-            .unwrap()
+        include_str!("../input.txt")
             .split("\n\n")
             .map(|g| g
                 .lines()

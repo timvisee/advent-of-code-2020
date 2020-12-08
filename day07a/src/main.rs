@@ -5,9 +5,11 @@ lazy_static::lazy_static! {
     static ref RE_CONT: Regex = Regex::new(r#"\d ([a-z ]+) b"#).unwrap();
 }
 
-fn main() {
-    let data = std::fs::read_to_string("./input.txt").unwrap();
-    let rules: Vec<_> = data.lines().map(parse_bag).collect();
+pub fn main() {
+    let rules: Vec<_> = include_str!("../input.txt")
+        .lines()
+        .map(parse_bag)
+        .collect();
 
     let (mut bags, mut cursor) = (vec!["shiny gold"], 0);
 

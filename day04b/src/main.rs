@@ -1,15 +1,12 @@
-#![feature(str_split_once)]
-
 use std::collections::HashMap;
 
 const REQ_FIELDS: [&'static str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 const EYE_COLORS: [&'static str; 7] = ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 
-fn main() {
+pub fn main() {
     println!(
         "{}",
-        std::fs::read_to_string("./input.txt")
-            .unwrap()
+        include_str!("../input.txt")
             .split("\n\n")
             .map(|fields| fields
                 .split_ascii_whitespace()

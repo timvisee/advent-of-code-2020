@@ -1,6 +1,5 @@
-fn main() {
-    let mut items: Vec<usize> = std::fs::read_to_string("./input.txt")
-        .unwrap()
+pub fn main() {
+    let mut items: Vec<usize> = include_str!("../input.txt")
         .lines()
         .map(|i| i.parse().unwrap())
         .collect();

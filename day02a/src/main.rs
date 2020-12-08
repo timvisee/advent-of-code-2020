@@ -1,11 +1,10 @@
 use regex::Regex;
 
-fn main() {
+pub fn main() {
     let re = Regex::new(r#"^(\d+)-(\d+) (.): (.+)$"#).unwrap();
     println!(
         "{}",
-        std::fs::read_to_string("./input.txt")
-            .unwrap()
+        include_str!("../input.txt")
             .lines()
             .map(|p| re.captures(p).unwrap())
             .filter(|p| {

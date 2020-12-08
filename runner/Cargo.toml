@@ -1,0 +1,12 @@
+[package]
+name = "runner"
+version = "0.1.0"
+authors = ["timvisee <tim@visee.me>"]
+edition = "2018"
+
+[dependencies]
+atoi = "0.4"
+itertools = "0.9"
+lazy_static = "1.4"
+nom = "6.0"
+regex = "1.4"

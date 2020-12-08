@@ -6,9 +6,11 @@ lazy_static::lazy_static! {
     static ref RE_CONT: Regex = Regex::new(r#"(\d) ([a-z ]+) b"#).unwrap();
 }
 
-fn main() {
-    let data = std::fs::read_to_string("./input.txt").unwrap();
-    let rules: HashMap<_, _> = data.lines().map(parse_bag).collect();
+pub fn main() {
+    let rules: HashMap<_, _> = include_str!("../input.txt")
+        .lines()
+        .map(parse_bag)
+        .collect();
     println!("{}", bags("shiny gold", &rules) - 1);
 }
 

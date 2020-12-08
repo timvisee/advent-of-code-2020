@@ -1,6 +1,8 @@
-fn main() {
-    let data = std::fs::read_to_string("./input.txt").unwrap();
-    let map: Vec<&[u8]> = data.lines().map(|l| l.as_bytes()).collect();
+pub fn main() {
+    let map: Vec<&[u8]> = include_str!("../input.txt")
+        .lines()
+        .map(|l| l.as_bytes())
+        .collect();
 
     println!(
         "{}",

@@ -1,4 +1,4 @@
-fn main() {
+pub fn main() {
     let program: Vec<(&[u8], isize)> = include_bytes!("../input.txt")
         .split(|b| b == &b'\n')
         .map(|ins| (&ins[0..3], atoi::atoi(&ins[4..]).unwrap()))

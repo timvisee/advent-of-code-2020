@@ -1,4 +1,4 @@
-fn main() {
+pub fn main() {
     let mut ids = include_bytes!("../input.txt")
         .chunks(11)
         .map(|b| {
