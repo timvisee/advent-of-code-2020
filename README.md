@@ -20,6 +20,7 @@ Timings include binary execution, input reading and result printing delays.
 | [day 5](https://adventofcode.com/2020/day/5)   | [`0.3ms`](./day05a/src/main.rs) | [`0.3ms`](./day05b/src/main.rs)  |
 | [day 6](https://adventofcode.com/2020/day/6)   | [`0.4ms`](./day06a/src/main.rs) | [`0.4ms`](./day06b/src/main.rs)  |
 | [day 7](https://adventofcode.com/2020/day/7)   | [`3.0ms`](./day07a/src/main.rs) | [`2.5ms`](./day07b/src/main.rs)  |
+| [day 8](https://adventofcode.com/2020/day/8)   | [`0.4ms`](./day08a/src/main.rs) |                                  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply
