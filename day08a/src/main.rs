@@ -7,10 +7,10 @@ fn main() {
         })
         .collect();
 
-    let (mut covered, mut pc, mut acc) = (vec![], 0, 0);
+    let (mut visited, mut pc, mut acc) = (vec![], 0, 0);
 
-    while !covered.contains(&pc) {
-        covered.push(pc);
+    while !visited.contains(&pc) {
+        visited.push(pc);
         match program[pc] {
             ("acc", val) => acc += val,
             ("jmp", val) => pc += val as usize - 1,
