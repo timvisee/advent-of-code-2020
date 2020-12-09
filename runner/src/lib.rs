@@ -28,6 +28,8 @@ pub fn jobs() -> Vec<fn()> {
     jobs.push(fn_day!(day07b, "../../day07b/src/main.rs"));
     jobs.push(fn_day!(day08a, "../../day08a/src/main.rs"));
     jobs.push(fn_day!(day08b, "../../day08b/src/main.rs"));
+    jobs.push(fn_day!(day09a, "../../day09a/src/main.rs"));
+    jobs.push(fn_day!(day09b, "../../day09b/src/main.rs"));
 
     jobs
 }
