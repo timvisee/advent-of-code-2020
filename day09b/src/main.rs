@@ -6,15 +6,12 @@ pub fn main() {
         .map(|n| n.parse().unwrap())
         .collect();
 
-    let max_index = nums.iter().position(|n| n == &FIND).unwrap();
-
     println!(
         "{}",
-        nums[..max_index]
-            .windows(26)
-            .filter_map(|nums| {
-                for size in 2..=26 {
-                    let set = &nums[0..size];
+        nums.windows(20)
+            .filter_map(|set| {
+                for size in 3..=20 {
+                    let set = &set[0..size];
                     let sum: usize = set.iter().sum();
 
                     if sum < FIND {
@@ -23,9 +20,11 @@ pub fn main() {
                         return None;
                     }
 
-                    return Some(set.iter().min().unwrap() + set.iter().max().unwrap());
+                    let (min, max) = set
+                        .iter()
+                        .fold((FIND, 0), |(min, max), v| (min.min(*v), max.max(*v)));
+                    return Some(min + max);
                 }
-
                 None
             })
             .next()

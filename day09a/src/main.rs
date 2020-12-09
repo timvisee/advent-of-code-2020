@@ -7,11 +7,10 @@ pub fn main() {
     println!(
         "{}",
         nums.windows(26)
-            .find(|nums| {
-                let tot = nums[25];
+            .find(|set| {
                 for i in 0..24 {
                     for j in (i + 1)..25 {
-                        if nums[i] + nums[j] == tot {
+                        if set[i] + set[j] == set[25] {
                             return false;
                         }
                     }
