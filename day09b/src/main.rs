@@ -6,28 +6,19 @@ pub fn main() {
         .map(|n| n.parse().unwrap())
         .collect();
 
-    println!(
-        "{}",
-        nums.windows(20)
-            .filter_map(|set| {
-                for size in 3..=20 {
-                    let set = &set[0..size];
-                    let sum: usize = set.iter().sum();
+    let (mut start, mut end, mut tot) = (0, 1, nums[0] + nums[1]);
 
-                    if sum < FIND {
-                        continue;
-                    } else if sum > FIND {
-                        return None;
-                    }
+    while tot != FIND {
+        while tot < FIND {
+            end += 1;
+            tot += nums[end];
+        }
+        while tot > FIND {
+            tot -= nums[start];
+            start += 1;
+        }
+    }
 
-                    let (min, max) = set
-                        .iter()
-                        .fold((FIND, 0), |(min, max), v| (min.min(*v), max.max(*v)));
-                    return Some(min + max);
-                }
-                None
-            })
-            .next()
-            .unwrap()
-    );
+    let set = &nums[start..=end];
+    println!("{}", set.iter().min().unwrap() + set.iter().max().unwrap());
 }
