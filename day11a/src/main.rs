@@ -1,47 +1,58 @@
-const COLS: usize = 98;
-const ROWS: usize = 97;
+const C: isize = 98;
+const R: isize = 97;
+
+const NO: u8 = 0;
+const EM: u8 = 1;
+const OC: u8 = 2;
 
 pub fn main() {
-    let seats: Vec<(usize, usize)> = include_bytes!("../input.txt")
+    // Find seat indices
+    let seats: Vec<usize> = include_bytes!("../input.txt")
         .into_iter()
         .filter(|b| b != &&b'\n')
         .enumerate()
-        .filter(|(_, s)| **s == b'L' && **s != b'\n')
-        .map(|(i, _)| (i % COLS + 1, i / COLS + 1))
+        .filter(|(_, s)| **s == b'L')
+        .map(|(i, _)| i)
         .collect();
 
-    let mut cur = [[false; COLS + 2]; ROWS + 2];
+    // Create seat map, mark seat positions as empty
+    let mut cur = [NO; (R * C) as usize];
+    for i in &seats {
+        cur[*i] = EM;
+    }
     let mut prev = cur;
 
+    // Track seat neighbours indices
+    #[rustfmt::skip]
+    let seats: Vec<(usize, Vec<usize>)> = seats
+        .iter()
+        .map(|i| (*i, (0..9)
+            .filter(|r| r != &4)
+            .map(|r| ((*i as isize % C) + r % 3 - 1, (*i as isize / C) + r / 3 - 1))
+            .filter(|(x, y)| *x >= 0 && *y >= 0 && *x < C && *y < R)
+            .map(|(x, y)| (y * C + x) as usize)
+            .filter(|i| cur[*i] == EM)
+            .collect(),
+        ))
+        .collect();
+
     while {
-        for (x, y) in &seats {
-            let occup = (0..9)
-                .filter(|i| i != &4)
-                .map(|i| (i % 3, i / 3))
-                .filter(|(xx, yy)| prev[y + yy - 1][x + xx - 1])
-                .count();
+        for (i, visible) in &seats {
+            let occup = visible.iter().filter(|i| prev[**i] == OC).count();
+            let (cur_seat, prev_seat) = (&mut cur[*i], prev[*i]);
 
-            let cur_seat = &mut cur[*y][*x];
-            let prev_seat = prev[*y][*x];
-
-            if !prev_seat && occup == 0 {
-                *cur_seat = true;
-            } else if prev_seat && occup >= 4 {
-                *cur_seat = false;
+            if prev_seat == EM && occup == 0 {
+                *cur_seat = OC;
+            } else if prev_seat == OC && occup >= 4 {
+                *cur_seat = EM;
             } else {
                 *cur_seat = prev_seat;
             }
         }
 
         std::mem::swap(&mut cur, &mut prev);
-
         cur != prev
     } {}
 
-    println!(
-        "{}",
-        cur.iter()
-            .map(|s| s.iter().filter(|s| **s).count())
-            .sum::<usize>()
-    );
+    println!("{}", cur.iter().filter(|s| **s == OC).count());
 }

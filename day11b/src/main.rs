@@ -1,35 +1,49 @@
-const COLS: usize = 98;
-const ROWS: usize = 97;
+const C: isize = 98;
+const R: isize = 97;
 
 const NO: u8 = 0;
 const EM: u8 = 1;
 const OC: u8 = 2;
-type SEAT = u8;
 
 pub fn main() {
-    let mut seats: Vec<(usize, usize)> = include_bytes!("../input.txt")
+    // Find seat indices
+    let seats: Vec<usize> = include_bytes!("../input.txt")
         .into_iter()
         .filter(|b| b != &&b'\n')
         .enumerate()
-        .filter(|(_, s)| **s == b'L' && **s != b'\n')
-        .map(|(i, _)| (i % COLS + 1, i / COLS + 1))
+        .filter(|(_, s)| **s == b'L')
+        .map(|(i, _)| i)
         .collect();
-    seats.sort_unstable();
 
-    let mut cur = [[NO; COLS + 2]; ROWS + 2];
-
-    for (x, y) in &seats {
-        cur[*y][*x] = EM;
+    // Create seat map, mark seat positions as empty
+    let mut cur = [NO; (R * C) as usize];
+    for i in &seats {
+        cur[*i] = EM;
     }
-
     let mut prev = cur;
 
-    loop {
-        for (x, y) in &seats {
-            let occup = around((*x, *y), &prev);
+    // Track seat neighbours indices
+    #[rustfmt::skip]
+    let seats: Vec<(usize, Vec<usize>)> = seats
+        .into_iter()
+        .map(|i| (i, (0..9)
+            .filter(|r| r != &4)
+            .map(|r| (r % 3 - 1, r / 3 - 1))
+            .filter_map(|(rx, ry)| (1..)
+                .map(|f| ((i as isize % C) + rx * f, (i as isize / C) + ry * f))
+                .take_while(|(x, y)| *x >= 0 && *y >= 0 && *x < C && *y < R)
+                .map(|(x, y)| (y * C + x) as usize)
+                .filter(|i| cur[*i] == EM)
+                .next()
+            )
+            .collect(),
+        ))
+        .collect();
 
-            let cur_seat = &mut cur[*y][*x];
-            let prev_seat = prev[*y][*x];
+    while {
+        for (i, visible) in &seats {
+            let occup = visible.iter().filter(|i| prev[**i] == OC).count();
+            let (cur_seat, prev_seat) = (&mut cur[*i], prev[*i]);
 
             if prev_seat == EM && occup == 0 {
                 *cur_seat = OC;
@@ -41,51 +55,8 @@ pub fn main() {
         }
 
         std::mem::swap(&mut cur, &mut prev);
+        cur != prev
+    } {}
 
-        if cur == prev {
-            break;
-        }
-    }
-
-    println!(
-        "{}",
-        cur.iter()
-            .map(|s| s.iter().filter(|s| **s == OC).count())
-            .sum::<usize>()
-    );
-}
-
-#[inline(always)]
-fn around((x, y): (usize, usize), map: &[[SEAT; COLS + 2]]) -> usize {
-    let mut count = 0;
-
-    for ry in -1isize..=1 {
-        for rx in -1isize..=1 {
-            if rx == 0 && ry == 0 {
-                continue;
-            }
-
-            for i in 1.. {
-                let (xx, yy) = (x as isize + rx * i, y as isize + ry * i);
-
-                if xx < 0 || yy < 0 {
-                    break;
-                }
-
-                match map.get(yy as usize) {
-                    Some(row) => match row.get(xx as usize) {
-                        Some(&OC) => {
-                            count += 1;
-                            break;
-                        }
-                        Some(&EM) | None => break,
-                        _ => {}
-                    },
-                    None => break,
-                }
-            }
-        }
-    }
-
-    count
+    println!("{}", cur.iter().filter(|s| **s == OC).count());
 }

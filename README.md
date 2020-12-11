@@ -24,11 +24,11 @@ timings.
 | [day 8](https://adventofcode.com/2020/day/8)   | [`0.4ms`](./day08a/src/main.rs) | [`0.4ms`](./day08b/src/main.rs)  |
 | [day 9](https://adventofcode.com/2020/day/9)   | [`0.4ms`](./day09a/src/main.rs) | [`0.3ms`](./day09b/src/main.rs)  |
 | [day 10](https://adventofcode.com/2020/day/10) | [`0.3ms`](./day10a/src/main.rs) | [`0.3ms`](./day10b/src/main.rs)  |
-| [day 11](https://adventofcode.com/2020/day/11) | [`11.6ms`](./day11a/src/main.rs)| [`24.9ms`](./day11b/src/main.rs)  |
+| [day 11](https://adventofcode.com/2020/day/11) | [`5.3ms`](./day11a/src/main.rs) | [`6.4ms`](./day11b/src/main.rs)  |
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
-| _everything_ | [`41.7ms`](./runner/src/bin/runner.rs) | [`25.8ms`](./runner/src/bin/runner-par.rs) |
+| _everything_ | [`19.1ms`](./runner/src/bin/runner.rs) | [`7.3ms`](./runner/src/bin/runner-par.rs)  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply
