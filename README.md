@@ -2,15 +2,14 @@
 My [Advent of Code 2020][aoc-2020] solutions in the Rust programming language.
 This repository holds a separate Rust project for each day and part.
 
-This year I attempt to develop a short, compact and fast solution for each
-problem.
+This year I attempt to develop a standalone, short, compact and fast solution
+for each problem (day part).
 
 ## Timings
 Here is how long each solution takes to run to completion.
 All solutions are measured (non scientifically) with [`hyperfine`][hyperfine] on
 a `i5-4670k @ 3.8Ghz` machine running Linux.
-Timings include binary loading, execution, input reading and result printing
-timings.
+Timings include binary loading, execution, input and output timings.
 
 |                                                | part A                          | part B                           |
 |:-----------------------------------------------|:--------------------------------|:---------------------------------|
@@ -38,6 +37,10 @@ run the project to see the solution appear.
 # Switch to day 1a, and run it
 cd day01a
 cargo run --release
+
+# Or run everything in parallel
+cd ../runner
+cargo run --release --bin runner-par
 ```
 
 Some solutions might require Rust Nightly.
