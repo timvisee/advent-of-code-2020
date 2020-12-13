@@ -1,5 +1,3 @@
-#![feature(str_split_once)]
-
 pub fn main() {
     let (est, lines) = include_str!("../input.txt").split_once('\n').unwrap();
     let est = est.parse::<usize>().unwrap();
