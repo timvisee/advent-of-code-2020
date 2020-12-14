@@ -11,10 +11,10 @@ pub fn main() {
     for line in include_str!("../input.txt").lines() {
         if line.starts_with("me") {
             let cap = re.captures(&line).unwrap();
-            let addr: usize = cap[1].parse().unwrap();
+            let addr = cap[1].parse::<usize>().unwrap() & whitelist;
             let val = cap[2].parse().unwrap();
             for float_addr in &float_addrs {
-                mem.insert(addr & whitelist | float_addr, val);
+                mem.insert(addr | float_addr, val);
             }
         } else {
             let mut float_base = 0;
