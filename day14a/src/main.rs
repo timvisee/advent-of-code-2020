@@ -2,34 +2,31 @@ use regex::Regex;
 use std::collections::HashMap;
 
 pub fn main() {
-    let lines: Vec<&str> = include_str!("../input.txt").lines().collect();
-
-    let mut mem: HashMap<usize, usize> = HashMap::new();
-    let mut mask = "";
-
     let re = Regex::new(r#"^mem\[(\d+)\] = (\d+)$"#).unwrap();
+    let mut mem: HashMap<usize, usize> = HashMap::new();
+    let mut and_or = (0, 0);
 
-    for line in lines {
+    for line in include_str!("../input.txt").lines() {
         if line.starts_with("ma") {
-            mask = line.split(" = ").skip(1).next().unwrap();
+            and_or = line
+                .split(" = ")
+                .skip(1)
+                .next()
+                .unwrap()
+                .bytes()
+                .rev()
+                .enumerate()
+                .fold((usize::MAX, 0), |(and, or), (i, b)| match b {
+                    b'0' => (and & !(1 << i), or),
+                    b'1' => (and, or | 1 << i),
+                    _ => (and, or),
+                });
         } else {
             let captures = re.captures(&line).unwrap();
-            let i = captures[1].parse().unwrap();
-            let mut val = captures[2].parse().unwrap();
-
-            mask.chars()
-                .enumerate()
-                .filter(|(_, c)| c != &'X')
-                .for_each(|(i, c)| {
-                    let i = 35 - i;
-                    match c {
-                        '0' => val &= !(1 << i),
-                        '1' => val |= 1 << i,
-                        _ => unreachable!(),
-                    }
-                });
-
-            *mem.entry(i).or_default() = val;
+            mem.insert(
+                captures[1].parse().unwrap(),
+                captures[2].parse::<usize>().unwrap() & and_or.0 | and_or.1,
+            );
         }
     }
 

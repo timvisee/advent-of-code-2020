@@ -1,55 +1,47 @@
-use itertools::Itertools;
 use regex::Regex;
 use std::collections::HashMap;
 
 pub fn main() {
-    let lines: Vec<&str> = include_str!("../input.txt").lines().collect();
-
-    let mut mem: HashMap<usize, usize> = HashMap::new();
-    let mut mask = "";
-
     let re = Regex::new(r#"^mem\[(\d+)\] = (\d+)$"#).unwrap();
+    let mut mem = HashMap::new();
+    let mut float_addrs = vec![];
+    let mut whitelist = 0;
 
-    for line in lines {
-        if line.starts_with("ma") {
-            mask = line.split(" = ").skip(1).next().unwrap();
+    for line in include_str!("../input.txt").lines() {
+        if line.starts_with("me") {
+            let cap = re.captures(&line).unwrap();
+            let addr: usize = cap[1].parse().unwrap();
+            let val = cap[2].parse().unwrap();
+            for float_addr in &float_addrs {
+                mem.insert(addr & whitelist | float_addr, val);
+            }
         } else {
-            let captures = re.captures(&line).unwrap();
-            let mut addr = captures[1].parse().unwrap();
-            let val = captures[2].parse().unwrap();
+            let mut float_base = 0;
+            let mut float_bits = vec![];
+            float_addrs.clear();
+            whitelist = 0;
 
-            let mut floating_bits = vec![];
-            mask.chars().enumerate().for_each(|(i, c)| {
-                let i = 35 - i;
-                match c {
-                    '0' => {}
-                    '1' => addr |= 1 << i,
-                    'X' => floating_bits.push(i),
+            line.split(" = ")
+                .nth(1)
+                .unwrap()
+                .bytes()
+                .rev()
+                .enumerate()
+                .for_each(|(i, b)| match b {
+                    b'0' => whitelist |= 1 << i,
+                    b'1' => float_base |= 1 << i,
+                    b'X' => float_bits.push(i),
                     _ => unreachable!(),
-                }
-            });
+                });
 
-            // TODO: do not sort
-            floating_bits.sort_unstable();
-
-            // Set all floating bits in base to zero
-            for fb in &floating_bits {
-                addr &= !(1 << fb);
-            }
-
-            let len = floating_bits.len();
-            for bits in 0..2usize.pow(len as u32) {
-                let mut addr = addr;
-
-                for b in 0..36 {
-                    // Set each bit accordingly based on base b iterator mask
-                    if (bits & (1 << b)) > 0 {
-                        addr |= 1 << floating_bits[b];
-                    }
-                }
-
-                *mem.entry(addr).or_default() = val;
-            }
+            let bit_len = float_bits.len();
+            float_addrs = (0..2usize.pow(bit_len as u32))
+                .map(|combi| {
+                    (0..bit_len)
+                        .filter(|bi| combi & 1 << bi != 0)
+                        .fold(float_base, |addr, bi| addr | 1 << float_bits[bi])
+                })
+                .collect();
         }
     }
 
