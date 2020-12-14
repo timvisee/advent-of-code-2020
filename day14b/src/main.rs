@@ -1,6 +1,7 @@
 use regex::Regex;
 use std::collections::HashMap;
 
+#[rustfmt::skip]
 pub fn main() {
     let re = Regex::new(r#"^mem\[(\d+)\] = (\d+)$"#).unwrap();
     let mut mem = HashMap::new();
@@ -34,13 +35,12 @@ pub fn main() {
                     _ => unreachable!(),
                 });
 
-            let bit_len = float_bits.len();
-            float_addrs = (0..2usize.pow(bit_len as u32))
-                .map(|combi| {
-                    (0..bit_len)
-                        .filter(|bi| combi & 1 << bi != 0)
-                        .fold(float_base, |addr, bi| addr | 1 << float_bits[bi])
-                })
+            float_addrs = (0..2usize.pow(float_bits.len() as u32))
+                .map(|template| float_bits
+                    .iter()
+                    .enumerate()
+                    .fold(float_base, |addr, (i, fb)| addr | (template & 1 << i) << fb - i)
+                )
                 .collect();
         }
     }
