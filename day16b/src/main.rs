@@ -50,12 +50,11 @@ pub fn main() {
 
     let mut map = vec![""; rules.len()];
     for _ in 0..map.len() {
-        let (&f, p) = rule_fields
+        let (&name, p) = rule_fields
             .iter()
             .filter(|(_, p)| p.len() == 1)
             .next()
             .unwrap();
-        let name = f;
         let pos = p.iter().next().unwrap().clone();
         map[pos] = name;
         rule_fields.values_mut().for_each(|p| {
