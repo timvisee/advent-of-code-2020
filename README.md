@@ -30,11 +30,11 @@ Timings include binary loading, execution, input and output timings.
 | [day 15](https://adventofcode.com/2020/day/15) | [`0.1ms`](./day15a/src/main.rs) | [`432ms`](./day15b/src/main.rs)  |
 | [day 16](https://adventofcode.com/2020/day/16) | [`0.7ms`](./day16a/src/main.rs) | [`1.0ms`](./day16b/src/main.rs)  |
 | [day 17](https://adventofcode.com/2020/day/17) | [`0.5ms`](./day17a/src/main.rs) | [`8.2ms`](./day17b/src/main.rs)  |
-| [day 18](https://adventofcode.com/2020/day/18) | [`0.2ms`](./day18a/src/main.rs) |                                  |
+| [day 18](https://adventofcode.com/2020/day/18) | [`0.2ms`](./day18a/src/main.rs) | [`0.2ms`](./day18b/src/main.rs)  |
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
-| _everything_ | [`488ms`](./runner/src/bin/runner.rs)  | [`462ms`](./runner/src/bin/runner-par.rs)  |
+| _everything_ | [`489ms`](./runner/src/bin/runner.rs)  | [`461ms`](./runner/src/bin/runner-par.rs)  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply

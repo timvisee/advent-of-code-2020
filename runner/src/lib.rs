@@ -45,5 +45,7 @@ pub fn jobs() -> &'static [fn()] {
         fn_day!(day16b, "../../day16b/src/main.rs"),
         fn_day!(day17a, "../../day17a/src/main.rs"),
         fn_day!(day17b, "../../day17b/src/main.rs"),
+        fn_day!(day18a, "../../day18a/src/main.rs"),
+        fn_day!(day18b, "../../day18b/src/main.rs"),
     ]
 }

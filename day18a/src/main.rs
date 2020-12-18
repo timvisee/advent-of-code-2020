@@ -19,19 +19,17 @@ named!(
     )
 );
 
-named!(par<usize>, delimited!(tag!("("), expr, tag!(")")));
-
-named!(par_digit<usize>, alt!(digit | par));
+named!(
+    par<usize>,
+    alt!(delimited!(tag!("("), expr, tag!(")")) | digit)
+);
 
 named!(
     expr<usize>,
     do_parse!(
-        first: par_digit
+        first: par
             >> sum: fold_many1!(
-                complete!(pair!(
-                    delimited!(tag!(" "), one_of!("+*"), tag!(" ")),
-                    par_digit
-                )),
+                complete!(pair!(delimited!(tag!(" "), one_of!("+*"), tag!(" ")), par)),
                 first,
                 |acc, (op, val)| match op {
                     '*' => acc * val,
