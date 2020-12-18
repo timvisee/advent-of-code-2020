@@ -7,7 +7,6 @@ pub fn main() {
         "{}",
         include_bytes!("../input.txt")
             .split(|&b| b == b'\n')
-            .filter(|b| !b.is_empty())
             .map(|e| expr(e).unwrap().1)
             .sum::<usize>()
     );
