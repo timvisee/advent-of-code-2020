@@ -19,15 +19,22 @@ named!(unit<usize>, alt!(delimited!(tag!("("), expr, tag!(")")) | digit));
 named!(
     expr<usize>,
     do_parse!(
-        first: unit
-            >> sum: fold_many1!(
-                complete!(pair!(delimited!(tag!(" "), one_of!("+*"), tag!(" ")), unit)),
+        first: expr_plus
+            >> sum: fold_many0!(
+                complete!(preceded!(tag!(" * "), expr_plus)),
                 first,
-                |acc, (op, num)| match op {
-                    '+' => acc + num,
-                    '*' => acc * num,
-                    _ => unreachable!(),
-                })
+                |acc, num| acc * num)
+            >> (sum)
+    )
+);
+named!(
+    expr_plus<usize>,
+    do_parse!(
+        first: unit
+            >> sum: fold_many0!(
+                complete!(preceded!(tag!(" + "), unit)),
+                first,
+                |acc, num| acc + num)
             >> (sum)
     )
 );
