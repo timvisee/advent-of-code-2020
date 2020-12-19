@@ -1,11 +1,8 @@
 #![feature(str_split_once)]
 
-use std::collections::HashMap;
-
 pub fn main() {
     let input = include_str!("../input.txt");
-
-    let rules: HashMap<usize, Rule> = input
+    let mut rules: Vec<(usize, Rule)> = input
         .lines()
         .take_while(|l| !l.trim().is_empty())
         .map(|l| {
@@ -36,6 +33,8 @@ pub fn main() {
             )
         })
         .collect();
+    rules.sort_unstable_by_key(|r| r.0);
+    let rules: Vec<Rule> = rules.into_iter().map(|r| r.1).collect();
 
     let msgs: Vec<&str> = input.lines().skip_while(|l| !l.trim().is_empty()).collect();
 
@@ -49,53 +48,24 @@ pub fn main() {
     );
 }
 
-fn matches(msg: &[u8], rules: &HashMap<usize, Rule>, rule: usize) -> Option<usize> {
+fn matches(msg: &[u8], rules: &[Rule], rule: usize) -> Option<usize> {
     if msg.is_empty() {
         return None;
     }
 
-    match &rules[&rule] {
-        Rule::Lit(c) => {
-            if &msg[0] == c {
-                Some(1)
-            } else {
-                None
-            }
-        }
-        Rule::Seq(seq) => {
-            let mut consumed = 0;
-            for rule in seq {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => return None,
-                }
-            }
-            Some(consumed)
-        }
-        Rule::SeqOr(first, second) => {
-            let mut consumed = 0;
-            for rule in first {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => {
-                        consumed = 0;
-                        break;
-                    }
-                }
-            }
-
-            if consumed > 0 {
-                return Some(consumed);
-            }
-
-            for rule in second {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => return None,
-                }
-            }
-            Some(consumed)
-        }
+    match &rules[rule] {
+        Rule::Lit(c) if &msg[0] == c => Some(1),
+        Rule::Lit(_) => None,
+        Rule::Seq(r) => r
+            .into_iter()
+            .try_fold(0, |c, r| matches(&msg[c..], rules, *r).map(|n| n + c)),
+        Rule::SeqOr(r, s) => r
+            .into_iter()
+            .try_fold(0, |c, r| matches(&msg[c..], rules, *r).map(|n| n + c))
+            .or_else(|| {
+                s.into_iter()
+                    .try_fold(0, |c, r| matches(&msg[c..], rules, *r).map(|n| n + c))
+            }),
     }
 }
 
