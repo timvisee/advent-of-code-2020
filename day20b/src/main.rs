@@ -61,10 +61,7 @@ pub fn main() {
         .iter()
         .flat_map(|tile_row| {
             (0..SIZE - 2).into_iter().map(move |y| {
-                tile_row
-                    .iter()
-                    .flat_map(|t| t.as_ref().unwrap().body[y].to_vec())
-                    .collect()
+                tile_row.iter().flat_map(|t| t.as_ref().unwrap().body[y].to_vec()).collect()
             })
         })
         .collect();
@@ -102,11 +99,7 @@ impl Tile {
     fn from(data: &str) -> Self {
         let (id, cells) = data.split_once('\n').unwrap();
         let id = id[5..].trim_end_matches(":").parse().unwrap();
-        let cells: Vec<bool> = cells
-            .bytes()
-            .filter(|&b| b != b'\n')
-            .map(|b| b == b'#')
-            .collect();
+        let cells: Vec<_> = cells.bytes().filter(|&b| b != b'\n').map(|b| b == b'#').collect();
         Self {
             id,
             edges: [
