@@ -169,19 +169,15 @@ fn fit(
         .filter_map(|(i, p)| field[p.1][p.0].as_ref().map(|p| (i, p)))
         .map(|(i, t)| (i, t.edges[(i + 2) % 4]))
         .collect();
-    let ids = match_edges
-        .iter()
-        .take(2)
-        .map(|(_, edge)| edges[edge].to_vec())
-        .fold_first(|mut ids, edge_ids| {
-            ids.drain_filter(|n| !edge_ids.contains(n));
-            ids
-        }).unwrap();
+
+    let (side, edge) = match_edges[0];
+    let neighbor_id = field[pos.1 + NEIGHBORS[side].1][pos.0 + NEIGHBORS[side].0].as_ref().unwrap().id;
+    let tile_id = *edges[&edge].iter().filter(|&id| id != &neighbor_id).next().unwrap();
 
     let (i, tile) = tiles
         .iter()
         .enumerate()
-        .filter(|(_, tile)| ids.contains(&tile.id))
+        .filter(|(_, tile)| tile.id == tile_id)
         .filter_map(|(i, tile)| {
             (0..8)
                 .filter_map(|orient| {
