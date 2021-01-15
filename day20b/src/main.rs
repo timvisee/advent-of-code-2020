@@ -1,21 +1,17 @@
-#![feature(str_split_once, array_windows)]
+#![feature(custom_inner_attributes, str_split_once, array_windows)]
+#![rustfmt::skip]
 
 use std::cell::Cell;
 use std::collections::{HashMap, HashSet};
 use std::mem;
 
-type Pos = (usize, usize);
-type Edge = u16;
-type Empties = HashSet<Pos>;
-type Tiles = Vec<Tile>;
-type EdgeCounts = HashMap<Edge, u8>;
-type Field = [[Option<Tile>; FIELD_SIZE]; FIELD_SIZE];
-
 const SIZE: usize = 10;
 const FIELD_SIZE: usize = 12;
 const NEIGHBORS: [Pos; 4] = [(0, usize::MAX), (1, 0), (0, 1), (usize::MAX, 0)];
-#[rustfmt::skip]
 const MONSTER: [Pos; 15] = [(0, 1), (1, 2), (4, 2), (5, 1), (6, 1), (7, 2), (10, 2), (11, 1), (12, 1), (13, 2), (16, 2), (17, 1), (18, 0), (18, 1), (19, 1)];
+
+type Pos = (usize, usize);
+type Field = [[Option<Tile>; FIELD_SIZE]; FIELD_SIZE];
 
 pub fn main() {
     let mut tiles = include_str!("../input.txt")
@@ -24,7 +20,7 @@ pub fn main() {
         .collect::<Vec<Tile>>();
 
     // Count edge occurences
-    let edges: EdgeCounts = tiles
+    let edges = tiles
         .iter()
         .flat_map(|t| t.edges.iter().map(|e| [*e, e.reverse_bits() >> 6]))
         .fold(HashMap::new(), |mut map, [a, b]| {
@@ -33,15 +29,13 @@ pub fn main() {
             map
         });
 
-    // Find corner
+    // Find a corner, rotate unique edgest to top left
     let i = tiles
         .iter()
         .position(|t| t.edges.iter().filter(|e| edges[*e] > 1).take(3).count() < 3)
         .unwrap();
     let mut tile = tiles.remove(i);
-
-    // Find first edge with one occurrence, rotate it to become edge 3 (top left piece)
-    let edge_side = tile
+    let side = tile
         .edges
         .iter()
         .cycle()
@@ -51,234 +45,83 @@ pub fn main() {
         .array_windows()
         .position(|[a, b]| *a && *b)
         .unwrap();
-    let corner_rot = 3 - edge_side;
-    tile.rotate(corner_rot);
-    tile.orient_body(corner_rot);
+    tile.rot(3 - side);
+    tile.orient(3 - side);
 
-    assert!(edges[&tile.edges[0]] == 1);
-    assert!(edges[&tile.edges[3]] == 1);
-
+    // Create field, place corner, then place the rest
     let mut field: Field = Default::default();
-    let mut empties = Empties::new();
-
-    place_at(&mut field, tile, (0, 0), &mut empties);
-
-    'test: while !empties.is_empty() {
-        // Get random empty tile
-        // let empty = *empties.iter().next().unwrap();
-
-        for empty in &empties.clone() {
-            if fit_at(&mut field, *empty, &mut tiles, &mut empties, &edges) {
-                continue 'test;
-            }
-        }
-
-        panic!("FAILED");
+    let mut empties = HashSet::new();
+    place(&mut field, tile, (0, 0), &mut empties);
+    while !empties.is_empty() {
+        fit(&mut field, *empties.iter().next().unwrap(), &mut tiles, &mut empties, &edges);
     }
 
-    // Check
-    // TODO: remove
-    let product = field[0][0].as_ref().unwrap().id
-        * field[FIELD_SIZE - 1][0].as_ref().unwrap().id
-        * field[0][FIELD_SIZE - 1].as_ref().unwrap().id
-        * field[FIELD_SIZE - 1][FIELD_SIZE - 1].as_ref().unwrap().id;
-    assert!(
-        product == 20899048083289 || product == 108603771107737,
-        "corner checksum failed!"
-    );
-
-    let body_size = SIZE - 2;
-
-    let mut supermap: Vec<Vec<u8>> = field
+    // Build waters from tiles
+    let mut waters: Vec<Vec<bool>> = field
         .iter()
         .flat_map(|tile_row| {
-            (0..body_size).into_iter().map(move |y| {
+            (0..SIZE - 2).into_iter().map(move |y| {
                 tile_row
                     .iter()
-                    .flat_map(|tile| tile.as_ref().unwrap().body[y].to_vec())
+                    .flat_map(|t| t.as_ref().unwrap().body[y].to_vec())
                     .collect()
             })
         })
         .collect();
 
-    assert_eq!(supermap.len(), body_size * FIELD_SIZE);
-    assert_eq!(supermap[0].len(), body_size * FIELD_SIZE);
-
-    let mut subtract = 0;
-    for orient in 0..8 {
-        flip(&mut supermap);
-        if orient % 2 == 1 {
-            rot(&mut supermap, 1);
-        }
-
-        subtract = count_monsters(&mut supermap) * MONSTER.len();
-
-        if subtract > 0 {
-            break;
-        }
-    }
-    assert_ne!(subtract, 0);
-
-    // for y in 0..supermap.len() {
-    //     // if y % body_size == 0 {
-    //     //     println!();
-    //     //     // for tile in &field[y / body_size] {
-    //     //     //     let id = tile.as_ref().unwrap().id;
-    //     //     //     print!("{:<4}:       ", id);
-    //     //     // }
-    //     //     // println!();
-    //     // }
-
-    //     for x in 0..supermap.len() {
-    //         print!("{}", supermap[y][x] as char);
-
-    //         // if x % body_size == body_size - 1 {
-    //         //     print!("  ");
-    //         // }
-    //     }
-
-    //     println!();
-    // }
-    // println!();
-
-    let roughness: usize = supermap
-        .iter()
-        .map(|r| r.iter().filter(|&b| b == &b'#').count())
-        .sum::<usize>()
-        - subtract;
-    println!("{}", roughness);
-}
-
-fn place_at(field: &mut Field, tile: Tile, at: Pos, empties: &mut Empties) {
-    field[at.1][at.0] = Some(tile);
-
-    empties.remove(&at);
-
-    empties.extend(
-        [(at.0 + 1, at.1), (at.0, at.1 + 1)]
+    // Count waves, subtract monster bits
+    println!(
+        "{}",
+        waters
             .iter()
-            .filter(|p| p.0 < FIELD_SIZE && p.1 < FIELD_SIZE)
-            .filter(|p| field[p.1][p.0].is_none()),
+            .map(|r| r.iter().filter(|&&b| b).count())
+            .sum::<usize>()
+            - (0..8)
+                .map(|orient| {
+                    waters.reverse();
+                    if orient % 2 == 1 {
+                        rot(&mut waters, 1);
+                    }
+                    monsters(&mut waters)
+                })
+                .filter(|&n| n > 0)
+                .next()
+                .unwrap()
+                * MONSTER.len()
     );
-}
-
-fn fit_at(
-    field: &mut Field,
-    pos: Pos,
-    tiles: &mut Tiles,
-    empties: &mut Empties,
-    edge_counts: &EdgeCounts,
-) -> bool {
-    // Make sure tile is empty
-    assert!(field[pos.1][pos.0].is_none());
-
-    // Other sides that must fit, and their edges to this tile
-    let neighbor_pos: Vec<Pos> = NEIGHBORS
-        .iter()
-        .map(|p| (p.0.wrapping_add(pos.0), p.1.wrapping_add(pos.1)))
-        .collect();
-    let neighbor_sides: Vec<(usize, Edge)> = neighbor_pos
-        .iter()
-        .enumerate()
-        .filter(|(_, p)| p.0 < FIELD_SIZE && p.1 < FIELD_SIZE)
-        .filter_map(|(i, p)| field[p.1][p.0].as_ref().map(|p| (i, p)))
-        .map(|(i, t)| (i, t.edges[(i + 2) % 4]))
-        .collect();
-    let unique_sides = neighbor_pos
-        .iter()
-        .filter(|p| p.0 >= FIELD_SIZE || p.1 >= FIELD_SIZE)
-        .count();
-
-    let (tile_index, tile) = tiles
-        .iter()
-        .enumerate()
-        .filter_map(|(tile_index, tile)| {
-            // Return early if unique sides don't match
-            if unique_sides != tile.edges.iter().filter(|e| edge_counts[e] == 1).count() {
-                return None;
-            }
-
-            // Rotate current tile four times until it fits
-            for orientation in 0..8 {
-                let mut tile: Tile = tile.clone();
-
-                let rot = orientation % 4;
-                let flip = orientation >= 4;
-
-                // Prepare orientation
-                if flip {
-                    tile.flip();
-                }
-                tile.rotate(rot);
-
-                let fits = neighbor_sides
-                    .iter()
-                    .all(|(side, edge)| &tile.edges[*side] == edge);
-                if !fits {
-                    continue;
-                }
-
-                tile.orient_body(orientation);
-
-                return Some((tile_index, tile));
-            }
-
-            None
-        })
-        .next()
-        .unwrap();
-
-    tiles.remove(tile_index);
-    place_at(field, tile, pos, empties);
-
-    true
 }
 
 #[derive(Clone)]
 struct Tile {
     pub id: usize,
-
-    /// North, east, south, west
     pub edges: [u16; 4],
-
-    /// Individual cells.
-    pub body: Vec<Vec<u8>>,
+    pub body: Vec<Vec<bool>>,
 }
 
 impl Tile {
     fn from(data: &str) -> Self {
         let (id, cells) = data.split_once('\n').unwrap();
         let id = id[5..].trim_end_matches(":").parse().unwrap();
-        let cells: Vec<u8> = cells.bytes().filter(|&b| b != b'\n').collect();
-
-        // TODO: improve this?
-        let body = cells[SIZE..SIZE * (SIZE - 1)]
-            .chunks(SIZE)
-            .map(|r| r[1..SIZE - 1].to_vec())
-            .clone()
+        let cells: Vec<bool> = cells
+            .bytes()
+            .filter(|&b| b != b'\n')
+            .map(|b| b == b'#')
             .collect();
-
         Self {
             id,
             edges: [
-                cells[0..SIZE]
-                    .into_iter()
-                    .fold(0u16, |e, &c| e << 1 | (c == b'#') as u16),
-                (0..SIZE)
-                    .map(|i| cells[SIZE - 1 + i * SIZE])
-                    .fold(0u16, |e, c| e << 1 | (c == b'#') as u16),
-                cells[SIZE * (SIZE - 1)..SIZE * SIZE]
-                    .into_iter()
-                    .fold(0u16, |e, &c| e << 1 | (c == b'#') as u16),
-                (0..SIZE)
-                    .map(|i| cells[i * SIZE])
-                    .fold(0u16, |e, c| e << 1 | (c == b'#') as u16),
+                cells[0..SIZE].into_iter().fold(0u16, |e, &c| e << 1 | c as u16),
+                (0..SIZE).map(|i| cells[SIZE - 1 + i * SIZE]).fold(0u16, |e, c| e << 1 | c as u16),
+                cells[SIZE * (SIZE - 1)..SIZE * SIZE].into_iter().fold(0u16, |e, &c| e << 1 | c as u16),
+                (0..SIZE).map(|i| cells[i * SIZE]).fold(0u16, |e, c| e << 1 | c as u16),
             ],
-            body,
+            body: cells[SIZE..SIZE * (SIZE - 1)]
+                .chunks(SIZE)
+                .map(|r| r[1..SIZE - 1].to_vec())
+                .collect(),
         }
     }
 
-    /// Flip vertically (x axis).
     fn flip(&mut self) {
         self.edges[1] = self.edges[1].reverse_bits() >> 6;
         self.edges[3] = self.edges[3].reverse_bits() >> 6;
@@ -286,31 +129,93 @@ impl Tile {
         mem::swap(&mut a[0], &mut b[0]);
     }
 
-    /// Rotate once clockwise.
-    fn rotate(&mut self, amount: usize) {
-        // TODO: remove loop here
-        for _ in 0..amount % 4 {
-            self.edges = [
-                self.edges[3].reverse_bits() >> 6,
-                self.edges[0],
-                self.edges[1].reverse_bits() >> 6,
-                self.edges[2],
-            ];
+    fn rot(&mut self, rot: usize) {
+        if rot == 1 || rot == 2 {
+            self.edges[1] = self.edges[1].reverse_bits() >> 6;
+            self.edges[3] = self.edges[3].reverse_bits() >> 6;
         }
+        if rot == 2 || rot == 3 {
+            self.edges[0] = self.edges[0].reverse_bits() >> 6;
+            self.edges[2] = self.edges[2].reverse_bits() >> 6;
+        }
+        self.edges.rotate_right(rot);
     }
 
-    /// Orientate body once we know proper orientation.
-    fn orient_body(&mut self, orientation: usize) {
-        if orientation >= 4 {
-            flip(&mut self.body);
+    fn orient(&mut self, orient: usize) {
+        if orient >= 4 {
+            self.body.reverse();
         }
-        rot(&mut self.body, orientation % 4);
+        rot(&mut self.body, orient % 4);
     }
+}
+
+fn place(field: &mut Field, tile: Tile, at: Pos, empties: &mut HashSet<Pos>) {
+    field[at.1][at.0] = Some(tile);
+    empties.remove(&at);
+    empties.extend(
+        [(at.0 + 1, at.1), (at.0, at.1 + 1)]
+            .iter()
+            .filter(|p| p.0 < FIELD_SIZE && p.1 < FIELD_SIZE && field[p.1][p.0].is_none())
+    );
+}
+
+fn fit(
+    field: &mut Field,
+    pos: Pos,
+    tiles: &mut Vec<Tile>,
+    empties: &mut HashSet<Pos>,
+    edges: &HashMap<u16, u8>,
+) {
+    let neighbors: Vec<_> = NEIGHBORS
+        .iter()
+        .map(|p| (p.0.wrapping_add(pos.0), p.1.wrapping_add(pos.1)))
+        .collect();
+    let match_edges: Vec<_> = neighbors
+        .iter()
+        .enumerate()
+        .filter(|(_, p)| p.0 < FIELD_SIZE && p.1 < FIELD_SIZE)
+        .filter_map(|(i, p)| field[p.1][p.0].as_ref().map(|p| (i, p)))
+        .map(|(i, t)| (i, t.edges[(i + 2) % 4]))
+        .collect();
+    let unique_edges = neighbors
+        .iter()
+        .filter(|p| p.0 >= FIELD_SIZE || p.1 >= FIELD_SIZE)
+        .count();
+
+    let (i, tile) = tiles
+        .iter()
+        .enumerate()
+        .filter_map(|(i, tile)| {
+            if unique_edges != tile.edges.iter().filter(|e| edges[e] == 1).count() {
+                return None;
+            }
+
+            (0..8)
+                .filter_map(|orient| {
+                    let mut tile: Tile = tile.clone();
+                    if orient >= 4 {
+                        tile.flip();
+                    }
+                    tile.rot(orient % 4);
+
+                    if match_edges.iter().all(|(s, e)| &tile.edges[*s] == e) {
+                        tile.orient(orient);
+                        Some((i, tile))
+                    } else {
+                        None
+                    }
+                })
+                .next()
+        })
+        .next()
+        .unwrap();
+    tiles.remove(i);
+    place(field, tile, pos, empties);
 }
 
 fn rot<T: Copy>(arr: &mut Vec<Vec<T>>, rot: usize) {
     if rot & 2 > 0 {
-        flip(arr);
+        arr.reverse();
         arr.iter_mut().for_each(|r| r.reverse());
     }
     if rot & 1 > 0 {
@@ -323,11 +228,7 @@ fn rot<T: Copy>(arr: &mut Vec<Vec<T>>, rot: usize) {
     }
 }
 
-fn flip<T: Copy>(arr: &mut Vec<Vec<T>>) {
-    arr.reverse();
-}
-
-fn count_monsters(map: &mut Vec<Vec<u8>>) -> usize {
+fn monsters(map: &mut Vec<Vec<bool>>) -> usize {
     let count = Cell::new(0);
     map.iter()
         .skip(1)
@@ -339,10 +240,7 @@ fn count_monsters(map: &mut Vec<Vec<u8>>) -> usize {
                 .skip(17)
                 .enumerate()
                 .filter(|(x, [a, b, c])| {
-                    *a == b'#'
-                        && *b == b'#'
-                        && *c == b'#'
-                        && MONSTER.iter().all(|(a, b)| map[b + y][a + x] == b'#')
+                    *a && *b && *c && MONSTER.iter().all(|(a, b)| map[b + y][a + x])
                 })
                 .count()
         })
