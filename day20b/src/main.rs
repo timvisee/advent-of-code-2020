@@ -1,4 +1,4 @@
-#![feature(custom_inner_attributes, str_split_once, array_windows)]
+#![feature(array_windows, custom_inner_attributes, drain_filter, iterator_fold_self, str_split_once)]
 #![rustfmt::skip]
 
 use std::cell::Cell;
@@ -20,26 +20,28 @@ pub fn main() {
         .collect::<Vec<Tile>>();
 
     // Count edge occurences
-    let edges = tiles
+    // TODO: do not include reverse here, check reverse on lookup?
+    let edges: HashMap<u16, Vec<u16>> = tiles
         .iter()
-        .flat_map(|t| t.edges.iter().map(|e| [*e, e.reverse_bits() >> 6]))
-        .fold(HashMap::new(), |mut map, [a, b]| {
-            *map.entry(a).or_default() += 1;
-            *map.entry(b).or_default() += 1;
+        .fold(HashMap::new(), |mut map, tile| {
+            for edge in &tile.edges {
+                (*map.entry(*edge).or_default()).push(tile.id);
+                (*map.entry(edge.reverse_bits() >> 6).or_default()).push(tile.id);
+            }
             map
         });
 
     // Find a corner, rotate unique edgest to top left
     let i = tiles
         .iter()
-        .position(|t| t.edges.iter().filter(|e| edges[*e] > 1).take(3).count() < 3)
+        .position(|t| t.edges.iter().filter(|e| edges[*e].len() > 1).take(3).count() < 3)
         .unwrap();
     let mut tile = tiles.remove(i);
     let side = tile
         .edges
         .iter()
         .cycle()
-        .map(|e| edges[e] < 2)
+        .map(|e| edges[e].len() < 2)
         .take(5)
         .collect::<Vec<_>>()
         .array_windows()
@@ -90,7 +92,7 @@ pub fn main() {
 
 #[derive(Clone)]
 struct Tile {
-    pub id: usize,
+    pub id: u16,
     pub edges: [u16; 4],
     pub body: Vec<Vec<bool>>,
 }
@@ -157,32 +159,30 @@ fn fit(
     pos: Pos,
     tiles: &mut Vec<Tile>,
     empties: &mut HashSet<Pos>,
-    edges: &HashMap<u16, u8>,
+    edges: &HashMap<u16, Vec<u16>>,
 ) {
-    let neighbors: Vec<_> = NEIGHBORS
+    let match_edges: Vec<_> = NEIGHBORS
         .iter()
         .map(|p| (p.0.wrapping_add(pos.0), p.1.wrapping_add(pos.1)))
-        .collect();
-    let match_edges: Vec<_> = neighbors
-        .iter()
         .enumerate()
         .filter(|(_, p)| p.0 < FIELD_SIZE && p.1 < FIELD_SIZE)
         .filter_map(|(i, p)| field[p.1][p.0].as_ref().map(|p| (i, p)))
         .map(|(i, t)| (i, t.edges[(i + 2) % 4]))
         .collect();
-    let unique_edges = neighbors
+    let ids = match_edges
         .iter()
-        .filter(|p| p.0 >= FIELD_SIZE || p.1 >= FIELD_SIZE)
-        .count();
+        .take(2)
+        .map(|(_, edge)| edges[edge].to_vec())
+        .fold_first(|mut ids, edge_ids| {
+            ids.drain_filter(|n| !edge_ids.contains(n));
+            ids
+        }).unwrap();
 
     let (i, tile) = tiles
         .iter()
         .enumerate()
+        .filter(|(_, tile)| ids.contains(&tile.id))
         .filter_map(|(i, tile)| {
-            if unique_edges != tile.edges.iter().filter(|e| edges[e] == 1).count() {
-                return None;
-            }
-
             (0..8)
                 .filter_map(|orient| {
                     let mut tile: Tile = tile.clone();
@@ -202,6 +202,7 @@ fn fit(
         })
         .next()
         .unwrap();
+
     tiles.remove(i);
     place(field, tile, pos, empties);
 }

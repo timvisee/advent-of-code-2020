@@ -1,4 +1,9 @@
-#![feature(custom_inner_attributes, str_split_once, array_windows)]
+#![feature(
+    array_windows,
+    custom_inner_attributes,
+    iterator_fold_self,
+    str_split_once
+)]
 
 macro_rules! fn_day {
     ($day:ident, $file:expr) => {{
