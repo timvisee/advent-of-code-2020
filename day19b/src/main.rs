@@ -1,13 +1,10 @@
 #![feature(str_split_once)]
 
-use std::collections::HashMap;
-
 pub fn main() {
     let input = include_str!("../input.txt");
-
-    let mut rules: HashMap<usize, Rule> = input
+    let (rules, msgs) = input.split_once("\n\n").unwrap();
+    let mut rules: Vec<(usize, Rule)> = rules
         .lines()
-        .take_while(|l| !l.trim().is_empty())
         .map(|l| {
             let (n, rule) = l.split_once(": ").unwrap();
             (
@@ -36,68 +33,46 @@ pub fn main() {
             )
         })
         .collect();
+    rules.sort_unstable_by_key(|r| r.0);
+    let mut rules: Vec<Rule> = rules.into_iter().map(|r| r.1).collect();
 
-    rules.insert(8, Rule::SeqOr(vec![42], vec![42, 8]));
-    rules.insert(11, Rule::SeqOr(vec![42, 31], vec![42, 11, 31]));
-
-    let msgs: Vec<&str> = input.lines().skip_while(|l| !l.trim().is_empty()).collect();
+    rules[8] = Rule::SeqOr(vec![42], vec![42, 8]);
+    rules[11] = Rule::SeqOr(vec![42, 31], vec![42, 11, 31]);
 
     println!(
         "{}",
-        msgs.into_iter()
-            .filter(|m| matches(m.as_bytes(), &rules, 0)
-                .map(|n| n == m.len())
-                .unwrap_or(false))
+        msgs.lines()
+            .filter(|m| matches(&m.as_bytes(), &rules, 0)
+                // .map(|n| n == m.len())
+                .iter()
+                .any(|msg| msg.is_empty()))
             .count(),
     );
 }
 
-fn matches(msg: &[u8], rules: &HashMap<usize, Rule>, rule: usize) -> Option<usize> {
+// TODO: list never larger than 8
+fn matches<'a>(msg: &'a [u8], rules: &[Rule], rule: usize) -> Vec<&'a [u8]> {
     if msg.is_empty() {
-        return None;
+        return vec![];
     }
 
-    match &rules[&rule] {
-        Rule::Lit(c) => {
-            if &msg[0] == c {
-                Some(1)
-            } else {
-                None
-            }
+    match &rules[rule] {
+        Rule::Lit(c) if &msg[0] == c => vec![&msg[1..]],
+        Rule::Lit(_) => vec![],
+        Rule::Seq(a) => {
+            a.iter().fold(vec![msg], |msgs, r| {
+                // TODO: quit early if no msgs left, with try_fold?
+                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
+            })
         }
-        Rule::Seq(seq) => {
-            let mut consumed = 0;
-            for rule in seq {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => return None,
-                }
-            }
-            Some(consumed)
-        }
-        Rule::SeqOr(first, second) => {
-            let mut consumed = 0;
-            for rule in first {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => {
-                        consumed = 0;
-                        break;
-                    }
-                }
-            }
-
-            if consumed > 0 {
-                return Some(consumed);
-            }
-
-            for rule in second {
-                match matches(&msg[consumed..], rules, *rule) {
-                    Some(n) => consumed += n,
-                    None => return None,
-                }
-            }
-            Some(consumed)
+        Rule::SeqOr(a, b) => {
+            let mut result = a.iter().fold(vec![msg], |msgs, r| {
+                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
+            });
+            result.extend(b.iter().fold(vec![msg], |msgs, r| {
+                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
+            }));
+            result
         }
     }
 }
