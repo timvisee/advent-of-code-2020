@@ -1,8 +1,7 @@
 #![feature(str_split_once)]
 
-pub fn main() {
-    let input = include_str!("../input.txt");
-    let (rules, msgs) = input.split_once("\n\n").unwrap();
+fn main() {
+    let (rules, msgs) = include_str!("../input.txt").split_once("\n\n").unwrap();
     let mut rules: Vec<(usize, Rule)> = rules
         .lines()
         .map(|l| {
@@ -13,73 +12,77 @@ pub fn main() {
                     Rule::Lit(rule.chars().nth(1).unwrap() as u8)
                 } else {
                     let parts: Vec<_> = rule.splitn(2, '|').collect();
-                    let first = parts[0]
+                    let a = parts[0]
                         .split_terminator(' ')
                         .filter(|n| !n.is_empty())
                         .map(|n| n.parse().unwrap())
                         .collect();
 
                     if parts.len() == 1 {
-                        Rule::Seq(first)
+                        Rule::Seq(a)
                     } else {
-                        let second = parts[1]
+                        let b = parts[1]
                             .split_terminator(' ')
                             .filter(|n| !n.is_empty())
                             .map(|n| n.parse().unwrap())
                             .collect();
-                        Rule::SeqOr(first, second)
+                        Rule::SeqOr(a, b)
                     }
                 },
             )
         })
         .collect();
     rules.sort_unstable_by_key(|r| r.0);
-    let mut rules: Vec<Rule> = rules.into_iter().map(|r| r.1).collect();
+    let rules: Vec<_> = rules.into_iter().map(|r| r.1).collect();
 
-    rules[8] = Rule::SeqOr(vec![42], vec![42, 8]);
-    rules[11] = Rule::SeqOr(vec![42, 31], vec![42, 11, 31]);
+    // rules[8] = Rule::SeqOr(vec![42], vec![42, 8]);
+    // rules[11] = Rule::SeqOr(vec![42, 31], vec![42, 11, 31]);
 
     println!(
         "{}",
         msgs.lines()
-            .filter(|m| matches(&m.as_bytes(), &rules, 0)
-                // .map(|n| n == m.len())
-                .iter()
-                .any(|msg| msg.is_empty()))
+            .filter(|msg| matches_42(msg.as_bytes(), &rules))
             .count(),
     );
 }
 
-// TODO: list never larger than 8
-fn matches<'a>(msg: &'a [u8], rules: &[Rule], rule: usize) -> Vec<&'a [u8]> {
-    if msg.is_empty() {
-        return vec![];
-    }
-
-    match &rules[rule] {
-        Rule::Lit(c) if &msg[0] == c => vec![&msg[1..]],
-        Rule::Lit(_) => vec![],
-        Rule::Seq(a) => {
-            a.iter().fold(vec![msg], |msgs, r| {
-                // TODO: quit early if no msgs left, with try_fold?
-                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
-            })
-        }
-        Rule::SeqOr(a, b) => {
-            let mut result = a.iter().fold(vec![msg], |msgs, r| {
-                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
-            });
-            result.extend(b.iter().fold(vec![msg], |msgs, r| {
-                msgs.iter().flat_map(|m| matches(&m, rules, *r)).collect()
-            }));
-            result
-        }
-    }
-}
-
-#[derive(Debug)]
 enum Rule {
     Lit(u8),
     Seq(Vec<usize>),
     SeqOr(Vec<usize>, Vec<usize>),
+}
+
+fn matches_42(msg: &[u8], rules: &[Rule]) -> bool {
+    (0..)
+        .try_fold(msg, |msg, depth| match matches(msg, 42, rules) {
+            Some(msg) if matches_31(depth, msg, rules) => Err(true),
+            Some(msg) => Ok(msg),
+            None => Err(false),
+        })
+        .err()
+        .unwrap()
+}
+
+fn matches_31(depth: usize, msg: &[u8], rules: &[Rule]) -> bool {
+    (0..depth)
+        .try_fold(msg, |msg, _| match matches(msg, 31, rules) {
+            Some(msg) if msg.is_empty() => Err(true),
+            Some(msg) => Ok(msg),
+            None => Err(false),
+        })
+        .err()
+        .unwrap_or(false)
+}
+
+fn matches<'a>(msg: &'a [u8], rule: usize, rules: &[Rule]) -> Option<&'a [u8]> {
+    match &rules[rule] {
+        Rule::Lit(_) if msg.is_empty() => None,
+        Rule::Lit(c) if &msg[0] == c => Some(&msg[1..]),
+        Rule::Lit(_) => None,
+        Rule::Seq(a) => a.into_iter().try_fold(msg, |m, &r| matches(m, r, rules)),
+        Rule::SeqOr(a, b) => a
+            .into_iter()
+            .try_fold(msg, |m, &r| matches(m, r, rules))
+            .or_else(|| b.into_iter().try_fold(msg, |m, &r| matches(m, r, rules))),
+    }
 }
