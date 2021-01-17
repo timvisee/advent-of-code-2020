@@ -7,13 +7,15 @@ fn main() {
     let mut p1: VecDeque<usize> = p1.lines().skip(1).map(|n| n.parse().unwrap()).collect();
     let mut p2: VecDeque<usize> = p2.lines().skip(1).map(|n| n.parse().unwrap()).collect();
 
-    let score: usize = if play(&mut p1, &mut p2) {
-        p1.iter().rev().enumerate().map(|(i, c)| (i + 1) * c).sum()
-    } else {
-        p2.iter().rev().enumerate().map(|(i, c)| (i + 1) * c).sum()
-    };
-
-    println!("{}", score);
+    println!(
+        "{}",
+        if play(&mut p1, &mut p2) { p1 } else { p2 }
+            .iter()
+            .rev()
+            .enumerate()
+            .map(|(i, c)| (i + 1) * c)
+            .sum::<usize>()
+    );
 }
 
 fn play(p1: &mut VecDeque<usize>, p2: &mut VecDeque<usize>) -> bool {
@@ -23,11 +25,7 @@ fn play(p1: &mut VecDeque<usize>, p2: &mut VecDeque<usize>) -> bool {
             return !p1.is_empty();
         }
 
-        let (c1, c2) = match p1.pop_front().zip(p2.pop_front()) {
-            Some(c) => c,
-            None => panic!(),
-        };
-
+        let (c1, c2) = (p1.pop_front().unwrap(), p2.pop_front().unwrap());
         if c1 <= p1.len() && c2 <= p2.len() {
             if play(
                 &mut p1.make_contiguous()[..c1].to_owned().into(),
@@ -39,11 +37,7 @@ fn play(p1: &mut VecDeque<usize>, p2: &mut VecDeque<usize>) -> bool {
                 p2.push_back(c2);
                 p2.push_back(c1);
             }
-
-            continue;
-        }
-
-        if c1 > c2 {
+        } else if c1 > c2 {
             p1.push_back(c1);
             p1.push_back(c2);
         } else {
