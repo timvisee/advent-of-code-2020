@@ -1,7 +1,7 @@
 #![feature(array_windows, custom_inner_attributes, drain_filter, iterator_fold_self, str_split_once)]
 #![rustfmt::skip]
 
-use std::cell::Cell;
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::mem;
 
@@ -219,12 +219,12 @@ fn rot<T: Copy>(arr: &mut Vec<Vec<T>>, rot: usize) {
 }
 
 fn monsters(map: &mut Vec<Vec<bool>>) -> usize {
-    let count = Cell::new(0);
+    let count = RefCell::new(0);
     map.iter()
         .skip(1)
         .enumerate()
         .take(map.len() - 2)
-        .take_while(|(i, _)| *i < 3 || count.get() > 0)
+        .take_while(|(i, _)| *i < 3 || *count.borrow() > 0)
         .map(|(y, row)| {
             row.array_windows()
                 .skip(17)
@@ -234,6 +234,6 @@ fn monsters(map: &mut Vec<Vec<bool>>) -> usize {
                 })
                 .count()
         })
-        .for_each(|n| count.set(count.get() + n));
-    count.get()
+        .for_each(|n| *count.borrow_mut() += n);
+    count.into_inner()
 }
