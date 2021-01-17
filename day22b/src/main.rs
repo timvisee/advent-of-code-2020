@@ -7,12 +7,12 @@ const ALLOC_SIZE: usize = 3400;
 #[rustfmt::skip]
 fn main() {
     let (p1, p2) = include_str!("../input.txt").split_once("\n\n").unwrap();
-    let mut p1 = Deck::from(&p1.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());
-    let mut p2 = Deck::from(&p2.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());
+    let p1 = Deck::from(&p1.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());
+    let p2 = Deck::from(&p2.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());
 
     println!(
         "{}",
-        if play(&mut p1, &mut p2) { p1 } else { p2 }
+        if play(&p1, &p2) { p1 } else { p2 }
             .as_slice()
             .iter()
             .rev()
@@ -31,9 +31,9 @@ fn play(p1: &Deck, p2: &Deck) -> bool {
 
         let (c1, c2) = (p1.pop(), p2.pop());
         if if c1 <= p1.len() && c2 <= p2.len() {
-            let mut sp1: Deck = Deck::from(&p1.as_slice()[..c1]);
-            let mut sp2: Deck = Deck::from(&p2.as_slice()[..c2]);
-            sp1.as_slice().iter().max() >= sp2.as_slice().iter().max() || play(&mut sp1, &mut sp2)
+            let sp1 = Deck::from(&p1.as_slice()[..c1]);
+            let sp2 = Deck::from(&p2.as_slice()[..c2]);
+            sp1.as_slice().iter().max() >= sp2.as_slice().iter().max() || play(&sp1, &sp2)
         } else {
             c1 > c2
         } {
