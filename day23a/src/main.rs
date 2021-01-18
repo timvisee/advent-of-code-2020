@@ -9,7 +9,7 @@ fn main() {
     for _ in 0..100 {
         let cur = cups[0];
         let removed = [cups.remove(1), cups.remove(1), cups.remove(1)];
-        for target in (0..cur).rev().chain((cur..=highest).rev()) {
+        for target in (1..cur).rev().chain((cur..=highest).rev()) {
             if let Some(pos) = cups.iter().position(|&c| c == target) {
                 for removed in removed.iter().rev() {
                     cups.insert(pos + 1, *removed);
