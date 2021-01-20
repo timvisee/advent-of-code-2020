@@ -41,7 +41,7 @@ Timings include binary loading, execution, input and output timings.
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
-| _everything_ | [`714ms`](./runner/src/bin/runner.rs)  | [`657ms`](./runner/src/bin/runner-par.rs)  |
+| _everything_ | [`714ms`](./runner/src/bin/runner.rs)  | [`511ms`](./runner/src/bin/runner-par.rs)  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply

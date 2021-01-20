@@ -4949,3 +4949,4 @@ day24a took 104.85 μs
 day24b took 43.21 ms
 day25a took 26.88 ms
 everything took 713.81 ms
+runner-par took 510.89 ms
