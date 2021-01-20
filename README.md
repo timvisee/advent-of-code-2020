@@ -11,6 +11,8 @@ All solutions are measured (non scientifically) with [`hyperfine`][hyperfine] on
 a `i5-4670k @ 3.8Ghz` machine running Linux.
 Timings include binary loading, execution, input and output timings.
 
+![Benchmark](./res/graph.png)
+
 |                                                | part A                              | part B                              |
 |:-----------------------------------------------|:------------------------------------|:------------------------------------|
 | [day 1](https://adventofcode.com/2020/day/1)   | [`  0.170ms`](./day01a/src/main.rs) | [`  0.007ms`](./day01b/src/main.rs) |
