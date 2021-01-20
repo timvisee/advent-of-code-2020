@@ -1,3 +1,7 @@
+use took::Timer;
+
 fn main() {
-    runner::jobs().into_iter().for_each(|j| j());
+    let timer = Timer::new();
+    runner::jobs().into_iter().for_each(|j| j.0());
+    timer.took().describe("everything");
 }

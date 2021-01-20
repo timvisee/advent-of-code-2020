@@ -5,12 +5,8 @@ authors = ["timvisee <tim@visee.me>"]
 edition = "2018"
 
 [dependencies]
-atoi = "0.4"
-itertools = "0.9"
-lazy_static = "1.4"
-nom = "6.0"
 rayon = "1.5"
-regex = "1.4"
+took = "0.1"
 
 # Days
 day01a = { path = "../day01a" }
