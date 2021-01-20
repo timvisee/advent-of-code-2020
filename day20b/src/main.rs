@@ -3,7 +3,6 @@
 
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::mem;
 
 const SIZE: usize = 10;
 const FIELD_SIZE: usize = 12;
@@ -121,7 +120,7 @@ impl Tile {
         self.edges[1] = self.edges[1].reverse_bits() >> 6;
         self.edges[3] = self.edges[3].reverse_bits() >> 6;
         let (a, b) = self.edges.split_at_mut(2);
-        mem::swap(&mut a[0], &mut b[0]);
+        std::mem::swap(&mut a[0], &mut b[0]);
     }
 
     fn rot(&mut self, rot: usize) {

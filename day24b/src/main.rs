@@ -1,11 +1,11 @@
 #![feature(array_windows, split_inclusive)]
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 const NEIGHBORS: [(i16, i16); 6] = [(0, 1), (0, -1), (1, 1), (1, 0), (-1, 0), (-1, -1)];
 
 fn main() {
-    let map: HashSet<(i16, i16)> = include_bytes!("../input.txt")
+    let mut prev: HashSet<(i16, i16)> = include_bytes!("../input.txt")
         .split_inclusive(|&b| b == b'\n')
         .map(|line| {
             line.array_windows().fold((0, 0), |(x, y), v| match v {
@@ -24,34 +24,25 @@ fn main() {
             }
             map
         });
+    let mut cur: HashSet<(i16, i16)> = HashSet::new();
+    let mut neighbors: HashMap<(i16, i16), usize> = HashMap::new();
 
-    println!("{}", (0..100).fold(map, |map, _| cycle(map)).len());
-}
-
-#[inline(always)]
-#[rustfmt::skip]
-fn cycle(old: HashSet<(i16, i16)>) -> HashSet<(i16, i16)> {
-    let mut new = HashSet::new();
-    for (x, y) in &old {
-        // If 1 or 2 black neighbors, stay black
-        if NEIGHBORS
-            .iter()
-            .map(|(xx, yy)| (x + xx, y + yy))
-            .filter(|(x, y)| {
-                // For each white neighbor, if 2 black neighbors, turn black
-                let black = old.contains(&(*x, *y));
-                if !black && NEIGHBORS
-                        .iter()
-                        .map(|(xx, yy)| (x + xx, y + yy))
-                        .filter(|coord| old.contains(coord))
-                        .take(3)
-                        .count() == 2 {
-                    new.insert((*x, *y));
-                }
-                black
-            }).count() - 1 & !1 == 0 {
-            new.insert((*x, *y));
+    for _ in 0..100 {
+        for (x, y) in &prev {
+            for (xx, yy) in &NEIGHBORS {
+                *neighbors.entry((x + xx, y + yy)).or_default() += 1;
+            }
         }
+
+        cur.clear();
+        neighbors.drain().for_each(|(coord, count)| {
+            let black = prev.contains(&coord);
+            if black && count <= 2 || !black && count == 2 {
+                cur.insert(coord);
+            }
+        });
+        std::mem::swap(&mut prev, &mut cur);
     }
-    new
+
+    println!("{}", prev.len());
 }
