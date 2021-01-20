@@ -113,6 +113,253 @@ dependencies = [
 ]
 
 [[package]]
+name = "day01a"
+version = "0.1.0"
+dependencies = [
+ "itertools",
+]
+
+[[package]]
+name = "day01b"
+version = "0.1.0"
+
+[[package]]
+name = "day02a"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day02b"
+version = "0.1.0"
+dependencies = [
+ "atoi",
+ "nom",
+]
+
+[[package]]
+name = "day03a"
+version = "0.1.0"
+
+[[package]]
+name = "day03b"
+version = "0.1.0"
+
+[[package]]
+name = "day04a"
+version = "0.1.0"
+
+[[package]]
+name = "day04b"
+version = "0.1.0"
+
+[[package]]
+name = "day05a"
+version = "0.1.0"
+
+[[package]]
+name = "day05b"
+version = "0.1.0"
+
+[[package]]
+name = "day06a"
+version = "0.1.0"
+
+[[package]]
+name = "day06b"
+version = "0.1.0"
+
+[[package]]
+name = "day07a"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
+name = "day07b"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
+name = "day08a"
+version = "0.1.0"
+dependencies = [
+ "atoi",
+]
+
+[[package]]
+name = "day08b"
+version = "0.1.0"
+dependencies = [
+ "atoi",
+]
+
+[[package]]
+name = "day09a"
+version = "0.1.0"
+
+[[package]]
+name = "day09b"
+version = "0.1.0"
+
+[[package]]
+name = "day10a"
+version = "0.1.0"
+
+[[package]]
+name = "day10b"
+version = "0.1.0"
+
+[[package]]
+name = "day11a"
+version = "0.1.0"
+
+[[package]]
+name = "day11b"
+version = "0.1.0"
+
+[[package]]
+name = "day12a"
+version = "0.1.0"
+dependencies = [
+ "atoi",
+]
+
+[[package]]
+name = "day12b"
+version = "0.1.0"
+dependencies = [
+ "atoi",
+]
+
+[[package]]
+name = "day13a"
+version = "0.1.0"
+
+[[package]]
+name = "day13b"
+version = "0.1.0"
+dependencies = [
+ "ring-algorithm",
+]
+
+[[package]]
+name = "day14a"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day14b"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day15a"
+version = "0.1.0"
+
+[[package]]
+name = "day15b"
+version = "0.1.0"
+
+[[package]]
+name = "day16a"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day16b"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
+name = "day17a"
+version = "0.1.0"
+
+[[package]]
+name = "day17b"
+version = "0.1.0"
+
+[[package]]
+name = "day18a"
+version = "0.1.0"
+dependencies = [
+ "nom",
+]
+
+[[package]]
+name = "day18b"
+version = "0.1.0"
+dependencies = [
+ "nom",
+]
+
+[[package]]
+name = "day19a"
+version = "0.1.0"
+
+[[package]]
+name = "day19b"
+version = "0.1.0"
+
+[[package]]
+name = "day20a"
+version = "0.1.0"
+
+[[package]]
+name = "day20b"
+version = "0.1.0"
+
+[[package]]
+name = "day21a"
+version = "0.1.0"
+
+[[package]]
+name = "day21b"
+version = "0.1.0"
+
+[[package]]
+name = "day22a"
+version = "0.1.0"
+
+[[package]]
+name = "day22b"
+version = "0.1.0"
+
+[[package]]
+name = "day23a"
+version = "0.1.0"
+
+[[package]]
+name = "day23b"
+version = "0.1.0"
+
+[[package]]
+name = "day24a"
+version = "0.1.0"
+
+[[package]]
+name = "day24b"
+version = "0.1.0"
+
+[[package]]
+name = "day25a"
+version = "0.1.0"
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -195,6 +442,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-bigint"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e9a41747ae4633fce5adffb4d2e81ffc5e89593cb19917f8fb2cc5ff76507bf"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.44"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2cc698a63b549a70bc047073d2949cce27cd1c7b0a4a862d08a8031bc2801db"
+dependencies = [
+ "autocfg",
+ "num-traits",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -263,10 +531,70 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b181ba2dcf07aaccad5448e8ead58db5b742cf85dfe035e2227f137a539a189"
 
 [[package]]
+name = "ring-algorithm"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ccd69a4dcb0a223da1fa1559dcee71e2258db3a5857de3abc3cc6130f502424"
+dependencies = [
+ "num-bigint",
+ "num-traits",
+ "take_mut",
+]
+
+[[package]]
 name = "runner"
 version = "0.1.0"
 dependencies = [
  "atoi",
+ "day01a",
+ "day01b",
+ "day02a",
+ "day02b",
+ "day03a",
+ "day03b",
+ "day04a",
+ "day04b",
+ "day05a",
+ "day05b",
+ "day06a",
+ "day06b",
+ "day07a",
+ "day07b",
+ "day08a",
+ "day08b",
+ "day09a",
+ "day09b",
+ "day10a",
+ "day10b",
+ "day11a",
+ "day11b",
+ "day12a",
+ "day12b",
+ "day13a",
+ "day13b",
+ "day14a",
+ "day14b",
+ "day15a",
+ "day15b",
+ "day16a",
+ "day16b",
+ "day17a",
+ "day17b",
+ "day18a",
+ "day18b",
+ "day19a",
+ "day19b",
+ "day20a",
+ "day20b",
+ "day21a",
+ "day21b",
+ "day22a",
+ "day22b",
+ "day23a",
+ "day23b",
+ "day24a",
+ "day24b",
+ "day25a",
  "itertools",
  "lazy_static",
  "nom",
@@ -291,6 +619,12 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "take_mut"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f764005d11ee5f36500a149ace24e00e3da98b0158b3e2d53a7495660d3f4d60"
 
 [[package]]
 name = "tap"

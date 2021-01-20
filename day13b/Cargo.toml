@@ -4,5 +4,8 @@ version = "0.1.0"
 authors = ["timvisee <tim@visee.me>"]
 edition = "2018"
 
+[lib]
+path = "src/main.rs"
+
 [dependencies]
 ring-algorithm = "0.2"

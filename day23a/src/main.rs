@@ -1,4 +1,4 @@
-fn main() {
+pub fn main() {
     let mut cups: Vec<u8> = include_bytes!("../input.txt")
         .into_iter()
         .filter(|&b| b != &b'\n')

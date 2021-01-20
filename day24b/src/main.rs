@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 const NEIGHBORS: [(i16, i16); 6] = [(0, 1), (0, -1), (1, 1), (1, 0), (-1, 0), (-1, -1)];
 
-fn main() {
+pub fn main() {
     let mut prev: HashSet<(i16, i16)> = include_bytes!("../input.txt")
         .split_inclusive(|&b| b == b'\n')
         .map(|line| {

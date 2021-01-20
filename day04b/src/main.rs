@@ -1,3 +1,5 @@
+#![feature(str_split_once)]
+
 use std::collections::HashMap;
 
 const REQ_FIELDS: [&'static str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];

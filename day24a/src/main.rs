@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-fn main() {
+pub fn main() {
     println!(
         "{}",
         include_bytes!("../input.txt")

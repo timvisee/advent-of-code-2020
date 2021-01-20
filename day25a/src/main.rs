@@ -1,7 +1,7 @@
 #![feature(str_split_once)]
 
 #[rustfmt::skip]
-fn main() {
+pub fn main() {
     let (d, c) = include_str!("../input.txt").trim().split_once('\n').unwrap();
     let (d, c): (u64, u64) = (d.parse().unwrap(), c.parse().unwrap());
 

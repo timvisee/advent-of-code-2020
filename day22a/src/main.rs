@@ -2,7 +2,7 @@
 
 use std::collections::VecDeque;
 
-fn main() {
+pub fn main() {
     let (p1, p2) = include_str!("../input.txt").split_once("\n\n").unwrap();
     let mut p1: VecDeque<usize> = p1.lines().skip(1).map(|n| n.parse().unwrap()).collect();
     let mut p2: VecDeque<usize> = p2.lines().skip(1).map(|n| n.parse().unwrap()).collect();

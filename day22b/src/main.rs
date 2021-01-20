@@ -5,7 +5,7 @@ use std::collections::HashSet;
 const ALLOC_SIZE: usize = 3400;
 
 #[rustfmt::skip]
-fn main() {
+pub fn main() {
     let (p1, p2) = include_str!("../input.txt").split_once("\n\n").unwrap();
     let p1 = Deck::from(&p1.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());
     let p2 = Deck::from(&p2.lines().skip(1).map(|n| n.parse().unwrap()).collect::<Vec<_>>());

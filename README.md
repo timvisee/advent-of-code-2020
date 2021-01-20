@@ -41,13 +41,16 @@ Timings include binary loading, execution, input and output timings.
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
-| _everything_ | [`490ms`](./runner/src/bin/runner.rs)  | [`461ms`](./runner/src/bin/runner-par.rs)  |
+| _everything_ | [`1.03ms`](./runner/src/bin/runner.rs) | [`657ms`](./runner/src/bin/runner-par.rs)  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply
 run the project to see the solution appear.
 
 ```bash
+# One solution requires large stack size, set to allow unlimited size
+ulimit -s unlimited
+
 # Switch to day 1a, and run it
 cd day01a
 cargo run --release

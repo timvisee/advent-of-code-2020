@@ -1,6 +1,6 @@
 #![feature(str_split_once)]
 
-fn main() {
+pub fn main() {
     let (rules, msgs) = include_str!("../input.txt").split_once("\n\n").unwrap();
     let mut rules: Vec<(usize, Rule)> = rules
         .lines()

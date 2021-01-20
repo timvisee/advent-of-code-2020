@@ -1,6 +1,6 @@
 use std::mem::MaybeUninit;
 
-fn main() {
+pub fn main() {
     let cups: Vec<u32> = include_bytes!("../input.txt")
         .into_iter()
         .filter(|&b| b != &b'\n')

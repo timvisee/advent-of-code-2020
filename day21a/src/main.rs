@@ -3,7 +3,7 @@
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
-fn main() {
+pub fn main() {
     let food: Vec<_> = include_str!("../input.txt")
         .lines()
         .map(|food| {
