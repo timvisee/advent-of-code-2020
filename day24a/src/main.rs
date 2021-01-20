@@ -1,6 +1,6 @@
 #![feature(array_windows, split_inclusive)]
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 fn main() {
     println!(
@@ -18,12 +18,12 @@ fn main() {
                     _ => unreachable!(),
                 })
             })
-            .fold(HashMap::<_, bool>::new(), |mut map, coord| {
-                map.entry(coord).and_modify(|b| *b = !*b).or_insert(true);
+            .fold(HashSet::new(), |mut map, coord| {
+                if !map.remove(&coord) {
+                    map.insert(coord);
+                }
                 map
             })
-            .values()
-            .filter(|&flip| *flip)
-            .count()
+            .len()
     );
 }

@@ -1,11 +1,11 @@
 #![feature(array_windows, split_inclusive)]
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 
-const NEIGHBORS: [(i32, i32); 6] = [(0, 1), (0, -1), (1, 1), (1, 0), (-1, 0), (-1, -1)];
+const NEIGHBORS: [(i16, i16); 6] = [(0, 1), (0, -1), (1, 1), (1, 0), (-1, 0), (-1, -1)];
 
 fn main() {
-    let map = include_bytes!("../input.txt")
+    let map: HashSet<(i16, i16)> = include_bytes!("../input.txt")
         .split_inclusive(|&b| b == b'\n')
         .map(|line| {
             line.array_windows().fold((0, 0), |(x, y), v| match v {
@@ -18,53 +18,40 @@ fn main() {
                 _ => unreachable!(),
             })
         })
-        .fold(HashMap::<_, bool>::new(), |mut map, coord| {
-            map.entry(coord).and_modify(|b| *b = !*b).or_insert(true);
+        .fold(HashSet::new(), |mut map, coord| {
+            if !map.remove(&coord) {
+                map.insert(coord);
+            }
             map
         });
 
-    println!(
-        "{}",
-        (0..100)
-            .fold(map, |map, _| cycle(&map))
-            .values()
-            .filter(|&flip| *flip)
-            .count()
-    );
+    println!("{}", (0..100).fold(map, |map, _| cycle(map)).len());
 }
 
 #[inline(always)]
 #[rustfmt::skip]
-fn cycle(old: &HashMap<(i32, i32), bool>) -> HashMap<(i32, i32), bool> {
-    let mut new = HashMap::new();
-    for ((x, y), _) in old.into_iter().filter(|t| *t.1) {
+fn cycle(old: HashSet<(i16, i16)>) -> HashSet<(i16, i16)> {
+    let mut new = HashSet::new();
+    for (x, y) in &old {
         // If 1 or 2 black neighbors, stay black
         if NEIGHBORS
             .iter()
             .map(|(xx, yy)| (x + xx, y + yy))
-            .filter(|coord| *old.get(coord).unwrap_or(&false))
-            .take(3)
-            .count() - 1 & !1 == 0 {
-            new.insert((*x, *y), true);
-        }
-
-        // For each white neighbor, if 2 black neighbors, turn black
-        NEIGHBORS
-            .iter()
-            .map(|(xx, yy)| (x + xx, y + yy))
             .filter(|(x, y)| {
-                !old.get(&(*x, *y)).unwrap_or(&false)
-                    && NEIGHBORS
+                // For each white neighbor, if 2 black neighbors, turn black
+                let black = old.contains(&(*x, *y));
+                if !black && NEIGHBORS
                         .iter()
                         .map(|(xx, yy)| (x + xx, y + yy))
-                        .filter(|coord| *old.get(coord).unwrap_or(&false))
+                        .filter(|coord| old.contains(coord))
                         .take(3)
-                        .count()
-                        == 2
-            })
-            .for_each(|coord| {
-                new.insert(coord, true);
-            });
+                        .count() == 2 {
+                    new.insert((*x, *y));
+                }
+                black
+            }).count() - 1 & !1 == 0 {
+            new.insert((*x, *y));
+        }
     }
     new
 }
