@@ -37,7 +37,7 @@ Timings include binary loading, execution, input and output timings.
 | [day 22](https://adventofcode.com/2020/day/22) | [`0.3ms`](./day22a/src/main.rs) | [`4.0ms`](./day22b/src/main.rs)  |
 | [day 23](https://adventofcode.com/2020/day/23) | [`0.3ms`](./day23a/src/main.rs) | [`239ms`](./day23b/src/main.rs)  |
 | [day 24](https://adventofcode.com/2020/day/24) | [`0.4ms`](./day24a/src/main.rs) | [`42.1ms`](./day24b/src/main.rs) |
-| [day 25](https://adventofcode.com/2020/day/25) | [`94.3ms`](./day25a/src/main.rs)|                                  |
+| [day 25](https://adventofcode.com/2020/day/25) | [`23.3ms`](./day25a/src/main.rs)|                                  |
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
