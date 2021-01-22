@@ -3,7 +3,6 @@ pub fn main() {
         .lines()
         .map(|i| i.parse().unwrap())
         .collect();
-
     items.sort_unstable();
 
     for a in &items {
