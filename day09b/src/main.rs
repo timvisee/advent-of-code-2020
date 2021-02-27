@@ -6,19 +6,18 @@ pub fn main() {
         .map(|n| n.parse().unwrap())
         .collect();
 
-    let (mut start, mut end, mut tot) = (0, 1, nums[0] + nums[1]);
-
+    let (mut tail, mut head, mut tot) = (0, 1, nums[0] + nums[1]);
     while tot != FIND {
         while tot < FIND {
-            end += 1;
-            tot += nums[end];
+            head += 1;
+            tot += nums[head];
         }
         while tot > FIND {
-            tot -= nums[start];
-            start += 1;
+            tot -= nums[tail];
+            tail += 1;
         }
     }
 
-    let set = &nums[start..=end];
+    let set = &nums[tail..=head];
     println!("{}", set.iter().min().unwrap() + set.iter().max().unwrap());
 }

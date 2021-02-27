@@ -1,22 +1,20 @@
+use std::mem;
+
 pub fn main() {
     let mut program: Vec<(&[u8], i32)> = include_bytes!("../input.txt")
         .split(|b| b == &b'\n')
         .map(|ins| (&ins[0..3], atoi::atoi(&ins[4..]).unwrap()))
         .collect();
 
-    let swp_jmp_nop = |ins: &mut (&[u8], _)| match ins {
-        (b"nop", _) => ins.0 = b"jmp",
-        (b"jmp", _) => ins.0 = b"nop",
-        _ => {}
-    };
+    let mut other_op: &[u8] = b"nop";
     for pc in run(&program).0 {
         if program[pc].0 == b"jmp" {
-            swp_jmp_nop(&mut program[pc]);
+            mem::swap(&mut program[pc].0, &mut other_op);
             if let (_, Some(acc)) = run(&program) {
                 println!("{}", acc);
                 break;
             }
-            swp_jmp_nop(&mut program[pc]);
+            mem::swap(&mut program[pc].0, &mut other_op);
         }
     }
 }

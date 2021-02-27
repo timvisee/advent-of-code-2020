@@ -29,7 +29,7 @@ Timings include binary loading, execution, input and output timings.
 | [day 12](https://adventofcode.com/2020/day/12) | [`  0.011ms`](./day12a/src/main.rs) | [`  0.011ms`](./day12b/src/main.rs) |
 | [day 13](https://adventofcode.com/2020/day/13) | [`  0.002ms`](./day13a/src/main.rs) | [`  0.004ms`](./day13b/src/main.rs) |
 | [day 14](https://adventofcode.com/2020/day/14) | [`  0.276ms`](./day14a/src/main.rs) | [`  6.10 ms`](./day14b/src/main.rs) |
-| [day 15](https://adventofcode.com/2020/day/15) | [`  0.227ms`](./day15a/src/main.rs) | [`526    ms`](./day15b/src/main.rs) |
+| [day 15](https://adventofcode.com/2020/day/15) | [`  0.227ms`](./day15a/src/main.rs) | [`511    ms`](./day15b/src/main.rs) |
 | [day 16](https://adventofcode.com/2020/day/16) | [`  0.209ms`](./day16a/src/main.rs) | [`  0.526ms`](./day16b/src/main.rs) |
 | [day 17](https://adventofcode.com/2020/day/17) | [`  0.357ms`](./day17a/src/main.rs) | [`  7.98 ms`](./day17b/src/main.rs) |
 | [day 18](https://adventofcode.com/2020/day/18) | [`  0.246ms`](./day18a/src/main.rs) | [`  0.228ms`](./day18b/src/main.rs) |
@@ -43,7 +43,7 @@ Timings include binary loading, execution, input and output timings.
 
 |              | one-by-one                             | parallel                                   |
 |:-------------|:---------------------------------------|:-------------------------------------------|
-| _everything_ | [`714ms`](./runner/src/bin/runner.rs)  | [`511ms`](./runner/src/bin/runner-par.rs)  |
+| _everything_ | [`699ms`](./runner/src/bin/runner.rs)  | [`511ms`](./runner/src/bin/runner-par.rs)  |
 
 ## Run solutions
 Each Rust project contains a `input.txt` file, holding the puzzle input. Simply
