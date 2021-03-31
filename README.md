@@ -5,6 +5,9 @@ This repository holds a separate Rust project for each day and part.
 This year I attempt to develop a standalone, short, compact and fast solution
 for each problem (day part).
 
+I've written an article about my solutions here:
+https://timvisee.com/blog/solving-aoc-2020-in-under-a-second/
+
 ## Timings
 Here is how long each solution takes to run to completion.
 All solutions are measured (non scientifically) with [`hyperfine`][hyperfine] on
