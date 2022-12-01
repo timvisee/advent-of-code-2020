@@ -72,6 +72,7 @@ cargo run --release --bin bench
 Some solutions might require Rust Nightly.
 
 ## Other years
+- [2022](https://github.com/timvisee/advent-of-code-2022)
 - [2021](https://github.com/timvisee/advent-of-code-2021)
 - [2020](https://github.com/timvisee/advent-of-code-2020) _(current)_
 - [2019](https://github.com/timvisee/advent-of-code-2019)
